@@ -7,6 +7,14 @@
   --shadow: #111;
   --shadow2: #e1f5f1;
   --text: #9E9E9E;
+
+  --tittle: #1a1a1a;
+  --muted: #6b6560;
+
+  --cardBorder: #c5bfb8;
+  --cardBg: #ece6dd;
+  --navB: #e2dcd4;
+  --dashBg: #faf7f2
 }
 
 @theme inline {
@@ -18,23 +26,43 @@
   --color-input: var(--input);
 
   --color-shadow: var(--shadow);
-  --color-shadow2: var(--shadow2)
+  --color-shadow2: var(--shadow2);
+  --color-title: var(--title);
+
+  --color-muted: var(--muted);
+
+  --color-cardBorder: var(--cardBorder);
+  --color-cardBg: var(--cardBg);
+
+  --color-navB: var(--navB);
+  --color-dashBg: var(--dashBg)
 }
 
 
-  .dark {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  --background: #0c0a09;
+  --foreground: #ededed;
 
-    --border: #696969;
+  --border: #696969;
 
-    --text: #9E9E9E;
-    --input: #BDBDBD;
+  --text: #9E9E9E;
+  --input: #BDBDBD;
 
-    --shadow: #545353;
+  --shadow: #545353;
 
-    --shadow2: #9E9E9E
-  }
+  --shadow2: #9E9E9E;
+  --title: #e8e2d9;
+
+  --muted: #8a8078;
+
+  --cardBorder: #3a3530;
+  --cardBg: #1a1714;
+
+  
+
+  --navB: #ffffff0a;
+  --dashBg: #151311;
+}
 
 
 @utility shadow {

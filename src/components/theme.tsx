@@ -13,7 +13,7 @@ function Theme() {
 
      if (!mounted) {
           return (
-               <div className="h-10 w-12 animate-pulse rounded-full bg-gray-300 dark:bg-gray-600"></div>
+               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300 dark:bg-gray-600"></div>
           );
      }
 

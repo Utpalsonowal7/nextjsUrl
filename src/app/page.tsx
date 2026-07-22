@@ -116,7 +116,7 @@ export default function Home() {
                          </a>
                          <Link href="/login">LOGIN</Link>
                          <Link
-                              href="/login"
+                              href="/register"
                               className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded"
                          >
                               Get Started
@@ -158,7 +158,7 @@ export default function Home() {
                               </p>
                               <div className="flex flex-col md:flex-row gap-2 mt-3">
                                    <Link
-                                        href="/login"
+                                        href="/register"
                                         className="bg-[#c41e3a] text-white text-center py-3 md:px-5 hover:underline md:font-[10px] decoration-0 cursor-pointer"
                                    >
                                         Start For Free
