@@ -5,6 +5,9 @@ import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 
 function login() {
+     const handleLogin = () => {
+          window.location.href = `${process.env.NEXT_PUBLIC_BACkEND_URL}auth/google`;
+     }
      return (
           <div className="min-h-screen flex justify-center">
                <div className="flex flex-col justify-center items-center gap-10 py-10">
@@ -21,7 +24,7 @@ function login() {
                          </p>
                     </div>
                     <div className="flex flex-col gap-4 bg-cardBg border border-cardBorder py-10 px-6  md:px-18 bg-">
-                         <button className="flex items-center bg-background rounded gap-2 border border-cardBorder px-6 py-3 cursor-pointer">
+                         <button className="flex items-center bg-background rounded gap-2 border border-cardBorder px-6 py-3 cursor-pointer" onClick={handleLogin}>
                               <FcGoogle />
                               <span>Continue with Google</span>
                          </button>

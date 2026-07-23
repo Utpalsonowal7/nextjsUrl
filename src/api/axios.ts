@@ -1,3 +1,4 @@
+import { AppDispatch } from "./../lib/store";
 import axios from "axios";
 import type {
      AxiosInstance,
@@ -44,7 +45,11 @@ api.interceptors.response.use(
      async (err: AxiosError) => {
           const originalRequest = err.config as RetryAbleAxiosConfig;
 
-          if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
+          if (
+               err.response?.status === 401 &&
+               originalRequest &&
+               !originalRequest._retry
+          ) {
                if (isRefreshing) {
                     return new Promise<void>((resolve, reject) => {
                          failedQueue.push({ resolve, reject });
@@ -64,7 +69,7 @@ api.interceptors.response.use(
                     return api(originalRequest);
                } catch (error) {
                     processQueue(error);
-
+                    window.location.href = "/login";
                     return Promise.reject(error);
                } finally {
                     isRefreshing = false;

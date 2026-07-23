@@ -10,15 +10,22 @@ import { useState } from "react";
 import Theme from "../theme";
 import Sidebar from "./Sidebar";
 import UserInfoModel from "../ui/UserInfoModel";
+import { currentUser } from "@/lib/features/auth/authSlice";
+import { useAppSelector } from "@/lib/hooks";
 
-const user = {
-     name: "Utpal Sonowal",
-     email: "sonowalu73@gmail.com",
-};
+// const user = {
+//      name: "Utpal Sonowal",
+//      email: "sonowalu73@gmail.com",
+// };
 
 function Header() {
      const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
      const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
+
+     const me = useAppSelector(currentUser)
+     const user = me?.data?.user;
+     console.log(user)
+    
 
      return (
           <>
@@ -92,7 +99,7 @@ function Header() {
                     isOpen={isUserModelOpen}
                     logo={user.name
                          .split(" ")
-                         .map((word) => word[0])
+                         .map((word:string) => word[0])
                          .join("")
                          .toUpperCase()}
                     name={user.name}

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 function login() {
      const handleRegiter = () => {
-          window.location.href = `${process.env.NEXT_PUBLIC_BACkEND_URL}/auth/google`;
+          window.location.href = `${process.env.NEXT_PUBLIC_BACkEND_URL}auth/google`;
      };
 
      return (

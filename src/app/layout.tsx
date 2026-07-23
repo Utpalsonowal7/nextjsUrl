@@ -3,6 +3,7 @@ import { Sora } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import StoreProvider from "./StoreProvider";
+import AuthProvider from "./AuthProvider";
 
 const sora = Sora({
      subsets: ["latin"],
@@ -33,7 +34,7 @@ export default function RootLayout({
                               enableSystem
                               disableTransitionOnChange
                          >
-                              {children}
+                              <AuthProvider>{children}</AuthProvider>
                          </ThemeProvider>
                     </StoreProvider>
                </body>
