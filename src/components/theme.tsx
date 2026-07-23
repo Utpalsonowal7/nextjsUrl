@@ -1,6 +1,8 @@
 import React from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import { LuSunMedium, LuMoon } from "react-icons/lu";
+
 import { useState, useEffect } from "react";
 
 function Theme() {
@@ -25,7 +27,7 @@ function Theme() {
                     }
                     className="cursor-pointer"
                >
-                    {resolvedTheme === "dark" ? <Sun /> : <Moon />}
+                    {resolvedTheme === "dark" ? <LuSunMedium /> : <LuMoon />}
                </button>
           </div>
      );
