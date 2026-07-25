@@ -2,94 +2,19 @@
 
 import { ArrowRight, Link as LinkIcon, MoveRight } from "lucide-react";
 import Link from "next/link";
-
-import {
-     ShieldCheck,
-     ChartNoAxesCombined,
-     QrCode,
-     WandSparkles,
-     Zap,
-     Globe,
-     ChevronDown,
-     ChevronUp,
-} from "lucide-react";
 import Theme from "@/components/theme";
 import { faqs } from "@/data/faq";
-
+import { weOffer } from "@/data/weOffer";
 import { useState } from "react";
-
-const weOffer = [
-     {
-          icon: Zap,
-          title: "Sub-50 ms API Response",
-          description:
-               "Optimized infrastructure delivers lightning-fast redirects and API responses.",
-          badge: "Performance",
-     },
-     {
-          icon: ChartNoAxesCombined,
-          title: "Real-Time Analytics",
-          description:
-               "Monitor clicks, countries, devices, browsers, and referrers as they happen.",
-          badge: "Insights",
-     },
-     {
-          icon: WandSparkles,
-          title: "Custom Aliases",
-          description:
-               "Create clean, branded, and memorable links that match your identity.",
-          badge: "Branding",
-     },
-     {
-          icon: QrCode,
-          title: "Instant QR Codes",
-          description:
-               "Generate downloadable QR codes for every short link with a single click.",
-          badge: "Sharing",
-     },
-     {
-          icon: ShieldCheck,
-          title: "Password Protection",
-          description:
-               "Restrict access to private links using secure password protection.",
-          badge: "Security",
-     },
-     {
-          icon: Globe,
-          title: "Global Click Insights",
-          description:
-               "Understand where your audience comes from with detailed geographic analytics.",
-          badge: "Analytics",
-     },
-];
-
-const contributions = [
-     {
-          amount: "₹99",
-          title: "Supporter",
-          description: "A small gesture that helps cover infrastructure costs.",
-     },
-     {
-          amount: "₹249",
-          title: "Backer",
-          description: "Helps us ship improvements and maintain the platform.",
-          popular: true,
-     },
-     {
-          amount: "₹499",
-          title: "Champion",
-          description: "Supports new features and keeps the service free.",
-     },
-     {
-          amount: "₹999",
-          title: "Sponsor",
-          description:
-               "A generous contribution that powers future development.",
-     },
-];
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { contributions } from "@/data/contribution";
+import { useAppSelector } from "@/lib/hooks";
+import { currentUser } from "@/lib/features/auth/authSlice";
 
 export default function Home() {
      const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+     const user = useAppSelector(currentUser)
 
      return (
           <>
@@ -115,12 +40,21 @@ export default function Home() {
                               FAQ
                          </a>
                          <Link href="/login">LOGIN</Link>
-                         <Link
-                              href="/register"
-                              className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded"
-                         >
-                              Get Started
-                         </Link>
+                         {user ?
+                              <Link
+                                   href="/home"
+                                   className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded hover:underline"
+                              >
+                                   Dashboard
+                              </Link>
+                              :
+                              <Link
+                                   href="/register"
+                                   className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded"
+                              >
+                                   Get Started
+                              </Link>
+                         }
                          {/* <button
                               onClick={() =>
                                    setTheme(

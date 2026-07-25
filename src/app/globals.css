@@ -11,6 +11,8 @@
   --tittle: #1a1a1a;
   --muted: #6b6560;
 
+  --dashText: #1a1815;
+
   --cardBorder: #c5bfb8;
   --cardBg: #ece6dd;
   --navB: #e2dcd4;
@@ -35,7 +37,9 @@
   --color-cardBg: var(--cardBg);
 
   --color-navB: var(--navB);
-  --color-dashBg: var(--dashBg)
+  --color-dashBg: var(--dashBg);
+
+  --color-dashText: var(--dashText)
 }
 
 
@@ -59,6 +63,7 @@
   --cardBg: #1a1714;
 
   
+  --dashText: #E8E2D9;
 
   --navB: #ffffff0a;
   --dashBg: #151311;
@@ -71,6 +76,12 @@
 
 @utility shadow2 {
   box-shadow: 0 0 0 4px var(--shadow2);
+}
+
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-surface *:focus {
+  outline: none !important;
 }
 
 html {

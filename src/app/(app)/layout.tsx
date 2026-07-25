@@ -13,15 +13,15 @@ function AppLayout({ children }: { children: React.ReactNode }) {
      const status = useAppSelector(state);
      const router = useRouter();
 
-     useEffect(() => {
-          if (status === "failed") {
-               router.push("/login");
-          }
-     }, [status, router]);
+     // useEffect(() => {
+     //      if (status === "failed") {
+     //           router.push("/login");
+     //      }
+     // }, [status, router]);
 
-     if (!user) {
-          return null; 
-     }
+     // if (!user) {
+     //      return null; 
+     // }
 
      return (
           <div className="grid md:grid-cols-[250px_1fr]">
@@ -32,7 +32,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                     <header>
                          <Header />
                     </header>
-                    <main>{children}</main>
+                    <main className="mt-25">{children}</main>
                </div>
           </div>
      );

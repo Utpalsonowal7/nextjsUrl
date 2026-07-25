@@ -30,7 +30,7 @@ function Sidebar() {
      const pathName = usePathname();
 
      return (
-          <div className="min-h-screen fixed top-16 lg:top-0 left-0 w-full lg:w-62.5 border-r bg-dashBg border-navB">
+          <div className="min-h-screen fixed top-16 lg:top-0 left-0 w-full md:w-62.5 border-r bg-dashBg border-navB">
                <div className="flex flex-col px-5 gap-4">
                     <div className="flex flex-col gap-5 py-5 border-b-2 border-cardBg">
                          <div className="hidden md:flex items-center gap-1  text-foreground font-extrabold rounded ">
@@ -39,7 +39,7 @@ function Sidebar() {
                          </div>
                          <div
                               className=" bg-[#c41e3a] text-white py-2
-                    px-3.5 text-center rounded shadow-xl outline-none"
+                    px-3.5 text-center rounded shadow-xl outline-none text-sm font-bold"
                          >
                               {navShowing ? (
                                    <button className=" py-3 px-15 rounded shadow-sm">
@@ -57,7 +57,7 @@ function Sidebar() {
                                    <Link
                                         href={ls.href}
                                         key={ls.name}
-                                        className={`flex gap-4 px-3 py-1 items-center font-medium cursor-pointer   ${pathName === ls.href ? "border-l-4 text-white border-[#c43a21] bg-[#fb7b65] rounded" : "hover:rounded hover:bg-[#fb7b65]"}`}
+                                        className={`flex gap-4 px-3 py-1 items-center font-medium cursor-pointer  text-sm ${pathName === ls.href ? "border-l-4 text-white border-[#c43a21] bg-[#fb7b65] rounded" : "hover:rounded hover:bg-[#fb7b65]"}`}
                                    >
                                         <ls.icon className="w-5 h-5 shrink-0" />
 

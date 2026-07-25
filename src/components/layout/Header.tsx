@@ -13,24 +13,24 @@ import UserInfoModel from "../ui/UserInfoModel";
 import { currentUser } from "@/lib/features/auth/authSlice";
 import { useAppSelector } from "@/lib/hooks";
 
-// const user = {
-//      name: "Utpal Sonowal",
-//      email: "sonowalu73@gmail.com",
-// };
+const userOffine = {
+     name: "Utpal Sonowal",
+     email: "sonowalu73@gmail.com",
+};
 
 function Header() {
      const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
      const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
 
      const me = useAppSelector(currentUser)
-     const user = me?.data?.user;
+     const user = me?.data?.user ?? userOffine;
      console.log(user)
     
 
      return (
           <>
                <div
-                    className=" border-b z-20 fixed top-0 right-0 left-0 lg:left-62.5 px-3.5  border-navB lg:px-6
+                    className=" border-b z-20 fixed top-0 right-0 left-0 md:left-62.5 px-3.5  border-navB lg:px-6
           backdrop-blur-2xl bg-background/50"
                >
                     <div
@@ -88,7 +88,7 @@ function Header() {
 
                     <div className="w-full">
                          {isSideBarOpen && (
-                              <div>
+                              <div onClick={()=>setIsSideBarOpen(pre=>!pre)}>
                                    <Sidebar />
                               </div>
                          )}
