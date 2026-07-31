@@ -5,13 +5,13 @@ import Link from "@/components/ui/Link";
 export const links = [
      {
           id: 1,
-          desc: "GitHub repository for the LnkShrt project with source ggggggggggggggggggggggggggggggggggggggggggggggggcode and documentation.",
+          desc: "Prisma Client API | Prisma Documentation",
           shortLink: "https://lnkshrt.in/github",
           longUrl: "https://github.com/utpalsonowal/lnkshrt",
      },
      {
           id: 2,
-          desc: "Access your Vercel dashboard to manage deployments and projects.",
+          desc: "Oppo Goat Sale July 26 Store Online - Buy Oppo Goat Sale July 26 Online at Best Price in India | Flipkart.com",
           shortLink: "https://lnkshrt.in/vercel",
           longUrl: "https://vercel.com/dashboard",
      },
@@ -36,16 +36,46 @@ export const links = [
 ];
 
 export const images = [
-     "https://cdn.simpleicons.org/github",
-     "https://cdn.simpleicons.org/react",
-     "https://cdn.simpleicons.org/nextdotjs",
-     "https://cdn.simpleicons.org/vercel",
-     "https://cdn.simpleicons.org/tailwindcss",
-     "https://cdn.simpleicons.org/typescript",
-     "https://cdn.simpleicons.org/javascript",
-     "https://cdn.simpleicons.org/node.js",
-     "https://cdn.simpleicons.org/postgresql",
-     "https://cdn.simpleicons.org/docker",
+     {
+          id: 1,
+          image: "https://cdn.simpleicons.org/github",
+     },
+     {
+          id: 2,
+          image: "https://cdn.simpleicons.org/react",
+     },
+     {
+          id: 3,
+          image: "https://cdn.simpleicons.org/nextdotjs",
+     },
+     {
+          id: 4,
+          image: "https://cdn.simpleicons.org/vercel",
+     },
+     {
+          id: 5,
+          image: "https://cdn.simpleicons.org/tailwindcss",
+     },
+     {
+          id: 6,
+          image: "https://cdn.simpleicons.org/typescript",
+     },
+     {
+          id: 7,
+          image: "https://cdn.simpleicons.org/javascript",
+     },
+     {
+          id: 8,
+          image: "https://cdn.simpleicons.org/node.js",
+     },
+     {
+          id: 9,
+          image: "https://cdn.simpleicons.org/postgresql",
+     },
+     {
+          id: 10,
+          image: "https://cdn.simpleicons.org/docker",
+     },
 ];
 
 function Links() {
@@ -80,9 +110,14 @@ function Links() {
                </div>
 
                <div className="flex flex-col gap-4">
-                    {links.map((l, index) => (
-                              <Link key={l.id} link={l} image={images[index]} />
-                    ))}
+                    {links.map((l, index) => {
+                         const image = images.find(img => img.id === l.id);
+                         return (
+                              < Link key={l.id} link={l} image={image?.image ?? "/default-icon.png"} />
+                         );
+                    }
+                    )
+                    }
                </div>
           </div>
      );

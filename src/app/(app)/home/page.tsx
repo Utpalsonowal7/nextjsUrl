@@ -9,9 +9,9 @@ import { last6Hours } from "@/data/dummyData";
 import { last24Hours } from "@/data/dummyData";
 import { useState } from "react";
 import PiChart from "@/components/ui/PiChart";
-import { data as CountryData } from "@/components/ui/PiChart";
 import Image from "next/image";
 import { cities } from "@/data/cities";
+import ProgressCard from "@/components/ui/ProgressCard";
 
 const data = {
      "6h": last6Hours,
@@ -62,6 +62,15 @@ export const topLinks = [
      },
 ];
 
+export const piData = [
+     { name: "India", value: 482, fill: "#ec4899" },
+     { name: "United States", value: 361, fill: "#06b6d4" },
+     { name: "United Kingdom", value: 247, fill: "#84cc16" },
+     { name: "Germany", value: 184, fill: "#f97316" },
+     { name: "Japan", value: 126, fill: "#6366f1" },
+];
+
+
 function Home() {
      const [range, setRange] = useState<"6h" | "12h" | "24h">("24h");
      const [copied, setIsCopied] = useState < number | null>(null);
@@ -78,8 +87,8 @@ function Home() {
           setTimeout(()=>{setIsCopied(null)},2000)
      };
 
-     const fullLength = CountryData.reduce((c, err) => c + err.value, 0);
-     const cityLength = Math.max(...cities.map((max) => max.total));
+     const fullLength = piData.reduce((c, err) => c + err.value, 0);
+     const cityLength = Math.max(...cities.map((max) => max.value));
      console.log(cityLength);
      return (
           <div className="flex flex-col  gap-6 px-5 md:px-16">
@@ -173,17 +182,17 @@ function Home() {
 
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-48 ">
-                                   <PiChart />
+                                   <PiChart data={piData} />
                               </div>
 
                               <div className="flex flex-col gap-2">
-                                   {CountryData.map((err) => (
+                                   {piData.map((err) => (
                                         <p
                                              key={err.name}
                                              className="flex items-center gap-2 text-[10px] text-muted"
                                         >
                                              <span
-                                                  className="w-2 h-2 rounded-full"
+                                                  className="w-2 h-2 rounded-xs"
                                                   style={{
                                                        backgroundColor:
                                                             err.fill,
@@ -195,8 +204,9 @@ function Home() {
                                         </p>
                                    ))}
                               </div>
+
                               <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
-                                   {CountryData.map((c) => (
+                                   {piData.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
                                                   (c.value / fullLength) * 100,
@@ -208,7 +218,7 @@ function Home() {
                          </div>
                     </div>
                </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start py-1">
                     <div className="bg-dashBg px-3 md:px-5 py-5 rounded-xl border border-navB flex flex-col gap-5">
                          <div className="text-muted font-medium">
                               Today top 5 links
@@ -270,7 +280,7 @@ function Home() {
                               Top Cities
                          </div>
 
-                         <div className="w-full flex flex-col gap-3 ">
+                         {/* <div className="w-full flex flex-col gap-3 ">
                               {cities.map((c) => (
                                    <div
                                         key={c.city}
@@ -294,6 +304,16 @@ function Home() {
                                         </div>
                                    </div>
                               ))}
+                         </div> */}
+                         <div className="w-full">
+                              {cities ? (
+                                   <ProgressCard
+                                        data={cities}
+                                        length={cityLength}
+                                   />
+                              ) : (
+                                   <div>No Data Yet</div>
+                              )}
                          </div>
                     </div>
                </div>

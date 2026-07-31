@@ -17,8 +17,8 @@ const ClickChart = ({ isAnimationActive = true, data }: ClickChartProps) => {
           <AreaChart
                style={{
                     width: "100%",
-                    maxWidth: "900px",
-                    maxHeight: "30vh",
+                    maxWidth: "1000px",
+                    maxHeight: "35vh",
                     aspectRatio: 1.618,
                     outline: "none",
                }}
@@ -67,6 +67,11 @@ const ClickChart = ({ isAnimationActive = true, data }: ClickChartProps) => {
                     axisLine={false}
                     width={40}
                     tick={{ fontSize: 10 }}
+                    tickFormatter={(value) =>
+                         Intl.NumberFormat("en", {
+                              notation: "compact",
+                         }).format(value)
+                    }
                />
 
                <Tooltip
@@ -95,7 +100,7 @@ const ClickChart = ({ isAnimationActive = true, data }: ClickChartProps) => {
                     fill="url(#clickGradient)"
                     fillOpacity={1}
                     dot={false}
-                    activeDot={{ r: 3}}
+                    activeDot={{ r: 3 }}
                     isAnimationActive={isAnimationActive}
                     animationDuration={1200}
                />

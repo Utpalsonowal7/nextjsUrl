@@ -1,13 +1,20 @@
 "use client";
 
-import { link } from "@/types";
+import { LinkProps } from "@/types";
+import  LinkRoute  from "next/link";
 import Image from "next/image";
 
-import { MdContentCopy } from "react-icons/md";
-import { IoIosCheckmarkCircle } from "react-icons/io";
+import {
+     MdContentCopy,
+     MdOutlineSubdirectoryArrowRight,
+     MdEdit,
+     MdDelete,
+} from "react-icons/md";
+import { IoAnalyticsSharp } from "react-icons/io5";
+import { IoIosCheckmarkCircle, IoMdShare  } from "react-icons/io";
 import { useState } from "react";
 
-function Link({ link, image }: link) {
+function Link({ link, image }: LinkProps) {
      const [copied, setIsCopied] = useState<number | null | undefined>(null);
 
      const handleCopy = async (
@@ -25,40 +32,66 @@ function Link({ link, image }: link) {
           }, 2000);
      };
      return (
-          <div className=" flex flex-row   gap-2 cursor-pointer bg-dashBg px-15 py-5">
-               <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-[#fb5a721f] border border-[#fb5a7247] rounded-md text-[##fb5a72]">
-                    <Image
-                         src={image}
-                         alt="nbb"
-                         width={15}
-                         height={15}
-                         unoptimized
-                    />
-               </div>
+          <div className=" flex flex-row justify-between  gap-2 cursor-pointer bg-dashBg px-5 py-5 rounded-xl">
+               <div className="w-[70%] flex gap-3 ">
+                    <div className="w-8 h-8 shrink-0 flex items-center justify-center bg-[#fb5a721f] border border-[#fb5a7247] rounded-md text-[#fb5a72]">
+                         {!image && (
+                              <div className="w-4 h-4 rounded bg-[#fb5a72]/30 animate-pulse" />
+                         )}
+                         <Image
+                              src={image}
+                              alt="nbb"
+                              width={15}
+                              height={15}
+                              unoptimized
+                         />
+                    </div>
 
-               <div className="min-w-0 flex-1 flex flex-col gap-5">
-                    <h3 className="truncate">
-                         <span>{link.desc}</span>
-                    </h3>
-                    <h5 className="font-bold text-[13px] text-foreground/80 truncate flex items-center gap-3">
-                         <span>{link.shortLink}</span>
-                         <button
-                              onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleCopy(link.id, link.shortLink);
-                              }}
-                              className="cursor-pointer"
+                    <div className="min-w-0 flex-1 flex flex-col gap-2.5">
+                         <div className="truncate text-muted font-medium hover:underline">
+                              <LinkRoute href={`/links/${link.id}`}>
+                                   {link.desc}
+                              </LinkRoute>
+                         </div>
+                         <h5 className="font-bold text-[13px] text-foreground/80 truncate flex items-center gap-3">
+                              <a
+                                   href={link.shortLink}
+                                   target="_blank"
+                                   className="text-short hover:underline"
+                              >
+                                   {link.shortLink?.replace("https://", "")}
+                              </a>
+                              <button
+                                   onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopy(link.id, link.shortLink);
+                                   }}
+                                   className="cursor-pointer text-short"
+                              >
+                                   {copied === link.id ? (
+                                        <IoIosCheckmarkCircle />
+                                   ) : (
+                                        <MdContentCopy />
+                                   )}
+                              </button>
+                         </h5>
+                         <a
+                              href={link.longUrl}
+                              target="_blank"
+                              className="flex  gap-1.5 text-xs text-muted truncate hover:underline"
                          >
-                              {copied === link.id ? (
-                                   <IoIosCheckmarkCircle />
-                              ) : (
-                                   <MdContentCopy />
-                              )}
-                         </button>
-                    </h5>
-                    <h6 className="text-xs text-muted truncate">
-                         {link.longUrl}
-                    </h6>
+                              <MdOutlineSubdirectoryArrowRight /> {link.longUrl}
+                         </a>
+                    </div>
+               </div>
+               <div className="px-4 md:px-10 flex flex-col md:flex-row gap-2 md:gap-7">
+                    <MdEdit className="w-5 h-5" />
+                    <IoMdShare className="w-5 h-5" />
+                    <LinkRoute href={`/links/${link.id}`}>
+                         {" "}
+                         <IoAnalyticsSharp className="w-5 h-5" />
+                    </LinkRoute>
+                    <MdDelete className="w-5 h-5" />
                </div>
           </div>
      );

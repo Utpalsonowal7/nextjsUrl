@@ -39,6 +39,8 @@ const authSlice = createSlice({
                     state.status = "failed";
                     state.error =
                          action.payload ?? "Failed to get current user";
+                         state.user = null;
+
                });
      },
 });

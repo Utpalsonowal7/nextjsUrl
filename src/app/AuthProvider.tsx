@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { getCurrentUser } from "@/lib/features/auth/authThunks";
-import { useAppDispatch } from "@/lib/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { currentUser } from "@/lib/features/auth/authSlice";
 import { usePathname } from "next/navigation";
 
 const PUBLIC_ONLY_ROUTES = ["/login", "/signup"];
@@ -13,14 +14,14 @@ export default function AuthProvider({
      children: React.ReactNode;
 }) {
      const dispatch = useAppDispatch();
-       const pathname = usePathname();
+     const pathname = usePathname();
+     const user = useAppSelector(currentUser);
 
-   useEffect(() => {
-        if (!PUBLIC_ONLY_ROUTES.includes(pathname)) {
-             dispatch(getCurrentUser());
-        }
-   }, [pathname, dispatch]);
-
+     useEffect(() => {
+          if (!PUBLIC_ONLY_ROUTES.includes(pathname) && !user) {
+               dispatch(getCurrentUser());
+          }
+     }, [pathname, dispatch, user]);
 
      return <>{children}</>;
 }

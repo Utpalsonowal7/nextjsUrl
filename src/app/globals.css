@@ -16,7 +16,10 @@
   --cardBorder: #c5bfb8;
   --cardBg: #ece6dd;
   --navB: #e2dcd4;
-  --dashBg: #faf7f2
+  --dashBg: #faf7f2;
+
+  --linkText:#273144;
+  --short:#2A5BD7;
 }
 
 @theme inline {
@@ -39,7 +42,9 @@
   --color-navB: var(--navB);
   --color-dashBg: var(--dashBg);
 
-  --color-dashText: var(--dashText)
+  --color-dashText: var(--dashText);
+  --color-linkText: var(--linkText);
+  --color-short: var(--short);
 }
 
 
@@ -67,6 +72,10 @@
 
   --navB: #ffffff0a;
   --dashBg: #151311;
+
+  --linkText:#D8CEBB;
+
+  --short:#60A5FA;
 }
 
 

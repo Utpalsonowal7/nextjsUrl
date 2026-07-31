@@ -1,7 +1,7 @@
 export const cities = [
-     { city: "Delhi", total: 120 },
-     { city: "Mumbai", total: 95 },
-     { city: "Bengaluru", total: 82 },
-     { city: "Chennai", total: 70 },
-     { city: "Pune", total: 65 },
+     { name: "Delhi", value: 120 },
+     { name: "Mumbai", value: 95 },
+     { name: "Bengaluru", value: 82 },
+     { name: "Chennai", value: 70 },
+     { name: "Pune", value: 65 },
 ];

@@ -1,4 +1,3 @@
-import { AppDispatch } from "./../lib/store";
 import axios from "axios";
 import type {
      AxiosInstance,
