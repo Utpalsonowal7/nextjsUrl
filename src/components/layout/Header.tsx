@@ -23,7 +23,7 @@ function Header() {
      const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
 
      const me = useAppSelector(currentUser)
-     const user = me?.data?.user ?? userOffine;
+     const user = me ?? userOffine;
      console.log(user)
     
 

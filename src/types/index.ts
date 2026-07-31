@@ -1,4 +1,21 @@
-import { cities } from '@/data/cities';
+import { cities } from "@/data/cities";
+
+export interface Tags {
+     name?: string;
+}
+
+export interface PostLink {
+     link: string;
+     title?: string;
+     tags?: Tags[];
+     customeCode?: string;
+     pass?: string;
+}
+
+export interface PostLinkresponse {
+     url: string;
+}
+
 export interface CurrentUser {
      id: number;
      name?: string;
@@ -42,7 +59,7 @@ export interface Analytics {
 
      cities?: {
           name: string;
-          value: number
+          value: number;
      }[];
 
      os?: {
