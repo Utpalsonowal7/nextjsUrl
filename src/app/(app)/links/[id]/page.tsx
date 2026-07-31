@@ -20,23 +20,27 @@ function Page() {
      const link = links.find((l) => l.id === Number(id));
      const image = images.find((img) => img.id === Number(id));
 
-     const fullLength: number | undefined =
-          link?.analytics?.countriesData?.reduce((a, b) => a + b.value, 0);
 
-     const fullLength1: number | undefined = link?.analytics?.browsers?.reduce(
+      if (!link) {
+           return <div>link not found</div>;
+      }
+
+     const fullLength = link?.analytics?.countriesData?.reduce(
+          (a, b) => a + b.value,
+          0,
+     )??0;
+
+     const fullLength1 = link?.analytics?.browsers?.reduce(
+          (a, b) => a + b.value,
+          0,
+     )??0;
+
+     const fullLength2 = link?.analytics?.devices?.reduce(
           (a, b) => a + b.value,
           0,
      );
 
-     const fullLength2: number | undefined = link?.analytics?.devices?.reduce(
-          (a, b) => a + b.value,
-          0,
-     );
-
-     if (!link) {
-          return <div>link not found</div>;
-     }
-
+    
      return (
           <div className="flex flex-col  gap-6 px-5 md:px-16 mb-2">
                <div className="flex gap-2 items-center cursor-pointer">
@@ -337,15 +341,21 @@ function Page() {
                          </div>
                     </div>
                     <div className="bg-dashBg px-3 md:px-5 py-5 rounded-xl border border-navB flex flex-col gap-5">
-                         <div className="text-muted font-medium">
-                               Cities
-                         </div>
+                         <div className="text-muted font-medium">Cities</div>
 
                          <div className="w-full">
                               {link.analytics?.cities ? (
                                    <ProgressCard
                                         data={link.analytics.cities}
-                                        length={Math.max(link.analytics.cities.reduce((max, a)=> max > a.value ? max : a.value,0))}
+                                        length={Math.max(
+                                             link.analytics.cities.reduce(
+                                                  (max, a) =>
+                                                       max > a.value
+                                                            ? max
+                                                            : a.value,
+                                                  0,
+                                             ),
+                                        )}
                                    />
                               ) : (
                                    <div>No Data Yet</div>
@@ -353,15 +363,21 @@ function Page() {
                          </div>
                     </div>
                     <div className="bg-dashBg px-3 md:px-5 py-5 rounded-xl border border-navB flex flex-col gap-5">
-                         <div className="text-muted font-medium">
-                              OS
-                         </div>
+                         <div className="text-muted font-medium">OS</div>
 
                          <div className="w-full">
                               {link?.analytics?.os ? (
                                    <ProgressCard
                                         data={link.analytics.os}
-                                        length={Math.max(link.analytics.os.reduce((max, a)=> max > a.value ? max : a.value,0))}
+                                        length={Math.max(
+                                             link.analytics.os.reduce(
+                                                  (max, a) =>
+                                                       max > a.value
+                                                            ? max
+                                                            : a.value,
+                                                  0,
+                                             ),
+                                        )}
                                    />
                               ) : (
                                    <div>No Data Yet</div>

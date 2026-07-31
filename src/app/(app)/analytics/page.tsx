@@ -11,6 +11,8 @@ import ClickChart from "@/components/ui/ClickChart";
 import CitieTable from "@/components/ui/CitieTable";
 import { TableData } from "@/components/ui/CitieTable";
 import { useState } from "react";
+import PiChart from "@/components/ui/PiChart";
+import SimpleBarChart from "@/components/ui/BarChart";
 
 export const cityTableData: TableData[] = [
      {
@@ -83,10 +85,103 @@ export const cityTableData: TableData[] = [
           diff: 0,
           status: "idle",
      },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
+     {
+          name: "Guwahati",
+          clicks: 2755,
+          percentage: 3.3,
+          diff: 0,
+          status: "idle",
+     },
 ];
 
 export default function Analytics() {
      const [range, setRange] = useState<"7" | "14" | "30" | "0">("7");
+
+     const totalDevice = overallAnalytics?.devices?.reduce((sum, ac)=> sum + ac.value, 0)
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16">
@@ -205,7 +300,89 @@ export default function Analytics() {
                          data={cityTableData}
                     />
 
-                    <div>shdssd</div>
+                    <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
+                         <div className="flex justify-between items-center">
+                              <div className="text-muted font-medium">
+                                   Referrers
+                              </div>
+                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                                   <span>clicks</span>
+                                   <span>
+                                        {overallAnalytics?.referrers?.reduce(
+                                             (sum, a) => sum + a.clicks,
+                                             0,
+                                        )}
+                                   </span>
+                              </div>
+                         </div>
+
+                         <div className="py-5">
+                              {overallAnalytics?.referrers ? (
+                                   <SimpleBarChart
+                                        data={overallAnalytics?.referrers}
+                                        datakey="source"
+                                   />
+                              ) : (
+                                   <div>No Data Yet</div>
+                              )}
+                         </div>
+                    </div>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
+                         <div className="flex justify-between items-center">
+                              <div className="text-muted font-medium">
+                                   Devices
+                              </div>
+                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                                   <span>clicks</span>
+                                   <span>{totalDevice}</span>
+                              </div>
+                         </div>
+                         <div className="flex items-center justify-between  px-1">
+                              <div className="w-40">
+                                   {overallAnalytics?.devices ? (
+                                        <PiChart
+                                             data={overallAnalytics?.devices}
+                                        />
+                                   ) : (
+                                        <div>No data yet</div>
+                                   )}
+                              </div>
+
+                              <div className="flex flex-col gap-2">
+                                   {overallAnalytics?.devices?.map((err) => (
+                                        <p
+                                             key={err.name}
+                                             className="flex items-center gap-2 text-[10px] text-muted"
+                                        >
+                                             <span
+                                                  className="w-2 h-2 rounded-xs"
+                                                  style={{
+                                                       backgroundColor:
+                                                            err?.fill ??
+                                                            "#e31d48",
+                                                  }}
+                                             ></span>
+                                             {err.name
+                                                  .slice(0, 3)
+                                                  .toUpperCase()}
+                                        </p>
+                                   ))}
+                              </div>
+                              <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
+                                   {overallAnalytics?.devices?.map((c) => (
+                                        <h6 key={c.name}>
+                                             {Math.floor(
+                                                  (c.value / totalDevice) * 100,
+                                             )}
+                                             %
+                                        </h6>
+                                   ))}
+                              </div>
+                         </div>
+                    </div>
                </div>
           </div>
      );

@@ -50,6 +50,11 @@ const SimpleBarChart = ({ data, datakey }: ProvidedProps) => {
                     tick={{
                          fontSize: 10,
                     }}
+                    tickFormatter={(value) =>
+                         Intl.NumberFormat("en", {
+                              notation: "compact",
+                         }).format(value)
+                    }
                />
                <Tooltip
                     labelStyle={{
