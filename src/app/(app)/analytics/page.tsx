@@ -13,6 +13,8 @@ import { TableData } from "@/components/ui/CitieTable";
 import { useState } from "react";
 import PiChart from "@/components/ui/PiChart";
 import SimpleBarChart from "@/components/ui/BarChart";
+import ProgressCard from "@/components/ui/ProgressCard";
+import LocationMap from "@/components/ui/LocationMap";
 
 export const cityTableData: TableData[] = [
      {
@@ -181,10 +183,16 @@ export const cityTableData: TableData[] = [
 export default function Analytics() {
      const [range, setRange] = useState<"7" | "14" | "30" | "0">("7");
 
-     const totalDevice = overallAnalytics?.devices?.reduce((sum, ac)=> sum + ac.value, 0)
+     const totalDevice =
+          overallAnalytics?.devices?.reduce((sum, ac) => sum + ac.value, 0) ??
+          0;
+     const totalOs =
+          overallAnalytics?.os?.reduce((sum, ac) => sum + ac.value, 0) ?? 0;
+     const totalBrowsers =
+          overallAnalytics?.browsers?.reduce((sum, ac) => sum + ac.value, 0) ?? 0;
 
      return (
-          <div className="flex flex-col  gap-6 px-3 md:px-16">
+          <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
                <div className="flex flex-col gap-7 py-3 md:py-6 border-b border-navB">
                     <div className="flex items-center justify-between">
                          <h4 className="font-bold text-2xl dash-dashText">
@@ -382,6 +390,140 @@ export default function Analytics() {
                                    ))}
                               </div>
                          </div>
+                    </div>
+                    <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
+                         <div className="flex justify-between items-center">
+                              <div className="text-muted font-medium">OS</div>
+                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                                   <span>clicks</span>
+                                   <span>{totalOs}</span>
+                              </div>
+                         </div>
+                         <div className="flex items-center justify-between  px-1">
+                              <div className="w-40">
+                                   {overallAnalytics?.os ? (
+                                        <PiChart data={overallAnalytics?.os} />
+                                   ) : (
+                                        <div>No data yet</div>
+                                   )}
+                              </div>
+
+                              <div className="flex flex-col gap-2">
+                                   {overallAnalytics?.os?.map((err) => (
+                                        <p
+                                             key={err.name}
+                                             className="flex items-center gap-2 text-[10px] text-muted"
+                                        >
+                                             <span
+                                                  className="w-2 h-2 rounded-xs"
+                                                  style={{
+                                                       backgroundColor:
+                                                            err?.fill ??
+                                                            "#e31d48",
+                                                  }}
+                                             ></span>
+                                             {err.name
+                                                  .slice(0, 3)
+                                                  .toUpperCase()}
+                                        </p>
+                                   ))}
+                              </div>
+                              <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
+                                   {overallAnalytics?.os?.map((c) => (
+                                        <h6 key={c.name}>
+                                             {Math.floor(
+                                                  (c.value / totalOs) * 100,
+                                             )}
+                                             %
+                                        </h6>
+                                   ))}
+                              </div>
+                         </div>
+                    </div>
+                    <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
+                         <div className="flex justify-between items-center">
+                              <div className="text-muted font-medium">
+                                   Browsers
+                              </div>
+                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                                   <span>clicks</span>
+                                   <span>{totalBrowsers}</span>
+                              </div>
+                         </div>
+                         <div className="flex items-center justify-between  px-1">
+                              <div className="w-40">
+                                   {overallAnalytics?.browsers ? (
+                                        <PiChart
+                                             data={overallAnalytics?.browsers}
+                                        />
+                                   ) : (
+                                        <div>No data yet</div>
+                                   )}
+                              </div>
+
+                              <div className="flex flex-col gap-2">
+                                   {overallAnalytics?.browsers?.map((err) => (
+                                        <p
+                                             key={err.name}
+                                             className="flex items-center gap-2 text-[10px] text-muted"
+                                        >
+                                             <span
+                                                  className="w-2 h-2 rounded-xs"
+                                                  style={{
+                                                       backgroundColor:
+                                                            err?.fill ??
+                                                            "#e31d48",
+                                                  }}
+                                             ></span>
+                                             {err.name
+                                                  .slice(0, 3)
+                                                  .toUpperCase()}
+                                        </p>
+                                   ))}
+                              </div>
+                              <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
+                                   {overallAnalytics?.devices?.map((c) => (
+                                        <h6 key={c.name}>
+                                             {Math.floor(
+                                                  (c.value / totalBrowsers) *
+                                                       100,
+                                             )}
+                                             %
+                                        </h6>
+                                   ))}
+                              </div>
+                         </div>
+                    </div>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4">
+                    <div className="bg-dashBg px-3 md:px-5 py-5 rounded-xl border border-navB flex flex-col gap-5">
+                         <div className="text-muted font-medium">OS</div>
+
+                         <div className="w-full">
+                              {overallAnalytics?.countriesData ? (
+                                   <ProgressCard
+                                        data={overallAnalytics.countriesData}
+                                        length={Math.max(
+                                             overallAnalytics.countriesData.reduce(
+                                                  (max, a) =>
+                                                       max > a.value
+                                                            ? max
+                                                            : a.value,
+                                                  0,
+                                             ),
+                                        )}
+                                   />
+                              ) : (
+                                   <div>No Data Yet</div>
+                              )}
+                         </div>
+                    </div>
+
+                    <div className="bg-dashBg p-5 rounded-xl">
+                         <h2 className="text-muted mb-4">Click locations</h2>
+
+                         <LocationMap />
                     </div>
                </div>
           </div>

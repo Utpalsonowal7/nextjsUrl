@@ -1008,11 +1008,11 @@ export const overallAnalytics = {
      ],
 
      browsers: [
-          { name: "Chrome", clicks: 30215, fill: "#ec4899" },
-          { name: "Safari", clicks: 12590, fill: "#06b6d4" },
-          { name: "Edge", clicks: 8813, fill: "#84cc16" },
-          { name: "Firefox", clicks: 6924, fill: "#f97316" },
-          { name: "Opera", clicks: 4406, fill: "#6366f1" },
+          { name: "Chrome", value: 30215, fill: "#ec4899" },
+          { name: "Safari", value: 12590, fill: "#06b6d4" },
+          { name: "Edge", value: 8813, fill: "#84cc16" },
+          { name: "Firefox", value: 6924, fill: "#f97316" },
+          { name: "Opera", value: 4406, fill: "#6366f1" },
      ],
 
      referrers: [

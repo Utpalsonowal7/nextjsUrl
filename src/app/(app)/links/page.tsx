@@ -80,7 +80,7 @@ export const images = [
 
 function Links() {
      return (
-          <div className="flex flex-col  gap-6 px-3 md:px-16">
+          <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
                <div className="flex flex-col gap-5 py-6 border-b border-navB">
                     <div className="flex items-center justify-between">
                          <h4 className="font-bold text-2xl dash-dashText">

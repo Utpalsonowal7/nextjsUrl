@@ -21,10 +21,6 @@ function Page() {
      const image = images.find((img) => img.id === Number(id));
 
 
-      if (!link) {
-           return <div>link not found</div>;
-      }
-
      const fullLength = link?.analytics?.countriesData?.reduce(
           (a, b) => a + b.value,
           0,
@@ -38,7 +34,12 @@ function Page() {
      const fullLength2 = link?.analytics?.devices?.reduce(
           (a, b) => a + b.value,
           0,
-     );
+     ) ?? 0;
+     
+     
+      if (!link) {
+           return <div>link not found</div>;
+      }
 
     
      return (

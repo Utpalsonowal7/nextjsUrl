@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sora } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import "leaflet/dist/leaflet.css";
 import StoreProvider from "./StoreProvider";
 import AuthProvider from "./AuthProvider";
 
