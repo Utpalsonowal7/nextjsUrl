@@ -12,9 +12,9 @@ export interface PostLink {
      pass?: string;
 }
 
-export interface PostLinkresponse {
-     url: string;
-}
+// export interface PostLinkresponse {
+//      url: string;
+// }
 
 export interface CurrentUser {
      id: number;
@@ -23,11 +23,9 @@ export interface CurrentUser {
      avataer: string;
 }
 
-export interface CurrentUserResponse {
+export interface ApiResponse<T> {
      statusCode: number;
-     data: {
-          user: CurrentUser;
-     };
+     data: T;
      message: string;
      success: boolean;
 }

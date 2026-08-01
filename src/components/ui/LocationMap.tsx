@@ -8,10 +8,10 @@ import {
      Tooltip,
      ZoomControl,
 } from "react-leaflet";
-import L from "leaflet";
+// import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Grid3x3, ChevronDown, Download, MoreHorizontal } from "lucide-react";
-import type { Feature, Geometry, FeatureCollection } from "geojson";
+// import type { Feature, Geometry, FeatureCollection } from "geojson";
 
 // This is all you store in the DB — no lat/lng needed.
 export interface EngagementPoint {
