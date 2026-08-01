@@ -23,6 +23,15 @@ export interface CurrentUser {
      avataer: string;
 }
 
+export interface CurrentUserResponse {
+     statusCode: number;
+     data: {
+          user: CurrentUser;
+     };
+     message: string;
+     success: boolean;
+}
+
 export interface Analytics {
      totalClicks: number;
      uniqueVisitors: number;

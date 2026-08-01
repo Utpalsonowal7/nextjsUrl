@@ -13,19 +13,22 @@ import UserInfoModel from "../ui/UserInfoModel";
 import { currentUser } from "@/lib/features/auth/authSlice";
 import { useAppSelector } from "@/lib/hooks";
 
-const userOffine = {
-     name: "Utpal Sonowal",
-     email: "sonowalu73@gmail.com",
-};
+// const userOffine = {
+//      name: "Utpal Sonowal",
+//      email: "sonowalu73@gmail.com",
+// };
 
 function Header() {
      const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
      const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
 
-     const me = useAppSelector(currentUser)
-     const user = me ?? userOffine;
-     console.log(user)
-    
+     const user = useAppSelector(currentUser)
+
+     if (!user) {
+          return <div className="h-16 border-b border-navB animate-pulse" />;
+     }
+     
+     const name = user?.name ?? "Guest";
 
      return (
           <>
@@ -71,13 +74,13 @@ function Header() {
                               >
                                    <div>
                                         <button className="font-medium h-8 w-8 text-center text-xl bg-[#c43a21] text-white rounded-full">
-                                             {user.name
+                                             {name
                                                   .slice(0, 1)
                                                   .toLocaleUpperCase()}
                                         </button>
                                    </div>
                                    <div>
-                                        <span>{user.name.split(" ")[0]}</span>
+                                        <span>{name.split(" ")[0]}</span>
                                    </div>
                                    <div>
                                         {isUserModelOpen ? <RiArrowDropUpFill /> : <RiArrowDropDownFill />}
@@ -97,13 +100,13 @@ function Header() {
 
                <UserInfoModel
                     isOpen={isUserModelOpen}
-                    logo={user.name
+                    logo={name
                          .split(" ")
                          .map((word:string) => word[0])
                          .join("")
                          .toUpperCase()}
-                    name={user.name}
-                    email={user.email}
+                    name={name}
+                    email={user?.email}
                />
           </>
      );
