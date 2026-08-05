@@ -55,12 +55,12 @@ function Page() {
                </div>
 
                <div>
-                    <div className="bg-dashBg rounded-xl py-4 px-8">
+                    <div className="bg-dashBg rounded-xl py-4 md:px-8">
                          <div className="">
                               <Link link={link} image={image?.image ?? "vv"} />
                          </div>
 
-                         <div className="px-15">
+                         <div className="px-5 md:px-15">
                               <hr className="border border-navB mb-2" />
                               <div className="flex justify-between items-center">
                                    <div className="flex gap-2 px-3">
@@ -108,7 +108,7 @@ function Page() {
                     />
                </div>
 
-               <div className="border flex flex-col py-5 px-10 bg-dashBg border-navB rounded-xl gap-5">
+               <div className="border flex flex-col py-5 md:px-10 bg-dashBg border-navB rounded-xl gap-5">
                     <div className="flex items-center justify-between px-2">
                          <div>
                               <h5 className="font-medium text-muted">
@@ -119,14 +119,6 @@ function Page() {
                               <select
                                    className="outline-none text-xs bg-dashBg text-muted"
                                    value={7}
-                                   // onChange={(e) =>
-                                   //      setRange(
-                                   //           e.target.value as
-                                   //                | "6h"
-                                   //                | "12h"
-                                   //                | "24h",
-                                   //      )
-                                   // }
                               >
                                    <option value="6h">last 6 hour</option>
                                    <option value="12h">last 12 hour</option>
@@ -135,7 +127,7 @@ function Page() {
                          </div>
                     </div>
 
-                    <div className="[webkit-tap-highlight-color:transparent] px-10">
+                    <div className="[webkit-tap-highlight-color:transparent] px-2 md:px-10">
                          <ClickChart data={link.analytics?.clickTrend ?? []} />
                     </div>
                </div>

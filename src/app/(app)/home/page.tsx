@@ -1,6 +1,6 @@
 "use client";
 
-import { MdLock, MdContentCopy } from "react-icons/md";
+import { MdLock, MdContentCopy, MdAdd, MdClose } from "react-icons/md";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import KpiCards from "@/components/ui/KpiCards";
 import ClickChart from "@/components/ui/ClickChart";
@@ -12,6 +12,13 @@ import PiChart from "@/components/ui/PiChart";
 import Image from "next/image";
 import { cities } from "@/data/cities";
 import ProgressCard from "@/components/ui/ProgressCard";
+import api from "@/api/axios";
+import { ApiResponse } from "@/types";
+import { ShortLink } from "@/types";
+import { PostLink } from "@/types";
+import { AxiosError } from "axios";
+import { Ellipsis, CircleAlert } from "lucide-react";
+import SuccessModal from "@/components/models/LinkCreatedModal";
 
 const data = {
      "6h": last6Hours,
@@ -70,29 +77,96 @@ export const piData = [
      { name: "Japan", value: 126, fill: "#6366f1" },
 ];
 
-
 function Home() {
-     const [range, setRange] = useState<"6h" | "12h" | "24h">("24h");
-     const [copied, setIsCopied] = useState < number | null>(null);
+     // const [range, setRange] = useState<"6h" | "12h" | "24h">("24h");
+     const [copied, setIsCopied] = useState<number | null>(null);
+     const [showQuickCreate, setShowQuickCreate] = useState<boolean>(false);
+     const [shortLink, setShortLink] = useState<ShortLink | null>(null);
+     const [loading, setLoading] = useState<boolean>(false);
+     const [err, setErr] = useState<string | null>(null);
+     const [url, setUrl] = useState<string>("");
+     const [showModal, setShowModal] = useState<boolean>(false);
 
-     
+     const urlRegex = /^https?:\/\/([\w-]+\.)+[\w-]{2,}(\/\S*)?$/;
 
-     const handleCopy = async (id:number, url:string) => {
-        
-               await navigator.clipboard.writeText(
-                    url
-               );
-          setIsCopied(id)
+     const showErr = (message: string) => {
+          setErr(message);
 
-          setTimeout(()=>{setIsCopied(null)},2000)
+          setTimeout(() => {
+               setErr(null);
+          }, 3000);
      };
 
+     const handleCopy = async (id: number, url: string) => {
+          await navigator.clipboard.writeText(url);
+          setIsCopied(id);
+
+          setTimeout(() => {
+               setIsCopied(null);
+          }, 2000);
+     };
+
+     const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          if (loading) return;
+
+          if (!url.trim()) {
+               showErr("Please provide a valid url");
+               return;
+          }
+
+          if (!urlRegex.test(url.trim())) {
+               showErr("URL must start with http:// or https://");
+               return;
+          }
+
+          setLoading(true);
+          setErr(null);
+
+          try {
+               const payload: PostLink = { longUrl: url };
+
+               const res = await api.post<ApiResponse<ShortLink>>(
+                    "links",
+                    payload,
+               );
+
+               setShortLink(res.data.data);
+               setShowModal(true)
+               setUrl("");
+          } catch (error) {
+               const e = error as AxiosError<{ message?: string }>;
+               showErr(
+                    e.response?.data?.message || "Failed to create shortlink",
+               );
+          } finally {
+               setLoading(false);
+          }
+     };
+
+     console.log(shortLink);
      const fullLength = piData.reduce((c, err) => c + err.value, 0);
      const cityLength = Math.max(...cities.map((max) => max.value));
-     console.log(cityLength);
+
      return (
-          <div className="flex flex-col  gap-6 px-5 md:px-16">
-               <div className="hidden w-full  border border-navB py-8 px-6 bg-dashBg rounded md:flex flex-col gap-6">
+          <div className="flex flex-col gap-6 px-5 md:px-16">
+               <button
+                    onClick={() => setShowQuickCreate((prev) => !prev)}
+                    className="md:hidden fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[#c41e3a] text-white flex items-center justify-center shadow-lg cursor-pointer"
+                    aria-label="Toggle quick create link"
+               >
+                    {showQuickCreate ? (
+                         <MdClose className="h-5 w-5" />
+                    ) : (
+                         <MdAdd className="h-6 w-6" />
+                    )}
+               </button>
+
+               <div
+                    className={`${
+                         showQuickCreate ? "flex" : "hidden"
+                    } w-full border border-navB py-8 px-6 bg-dashBg rounded md:flex flex-col gap-6`}
+               >
                     <div className="flex flex-col gap-2">
                          <h1 className="text-xl font-medium text-dashText tracking-sm ">
                               Quick Create: Short Link
@@ -112,24 +186,56 @@ function Home() {
                     </div>
 
                     <div>
-                         <form className="flex flex-col gap-3">
+                         <form
+                              className="flex flex-col gap-3"
+                              onSubmit={handleCreate}
+                         >
                               <label className="text-dashText font-medium text-sm">
                                    Enter your destination URL
                               </label>
-                              <div className="flex flex-col  sm:flex-row gap-6">
+                              {err && (
+                                   <div className="flex items-center gap-2 w-full md:w-[70%] rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2">
+                                        <CircleAlert
+                                             size={18}
+                                             className="text-red-500 shrink-0"
+                                        />
+                                        <p className="text-sm text-red-500">
+                                             {err}
+                                        </p>
+                                   </div>
+                              )}
+                              <div className="flex flex-col items-center sm:flex-row gap-6">
                                    <div className="w-full md:w-[70%]">
                                         <input
                                              type="url"
+                                             value={url}
+                                             onChange={(
+                                                  e: React.ChangeEvent<HTMLInputElement>,
+                                             ) => setUrl(e.target.value)}
                                              className="w-full border border-navB outline-none px-3 py-2.5 rounded
-                                        focus:ring-2
-                                        focus:ring-[#f59180]/30 font-sm"
+									focus:ring-2
+									focus:ring-[#f59180]/30 font-sm"
                                              placeholder="https://example.com/long-url"
                                              required
                                         />
                                    </div>
-                                   <button className="px-2 py-2.5 font-bold text-sm bg-[#c41e3a] text-white rounded cursor-pointer">
-                                        Create your first link
-                                   </button>
+
+                                   {loading ? (
+                                        <div className=" flex items-center  border border-navB px-4 max-h-11  py-2.5 rounded">
+                                             <Ellipsis
+                                                  className=" text-[#c41e3a] animate-pulse"
+                                                  size={50}
+                                             />
+                                        </div>
+                                   ) : (
+                                        <button
+                                             className="px-2 py-3 font-bold text-sm bg-[#c41e3a] text-white rounded cursor-pointer"
+                                             type="submit"
+                                             disabled={loading}
+                                        >
+                                             Create your first link
+                                        </button>
+                                   )}
                               </div>
                          </form>
                     </div>
@@ -144,10 +250,10 @@ function Home() {
                          <div className="flex items-center justify-between px-2">
                               <div>
                                    <h5 className="font-medium text-muted">
-                                        Clicks trend of last {range}
+                                        Clicks trend of last 24Hour
                                    </h5>
                               </div>
-                              <div>
+                              {/* <div>
                                    <select
                                         className="outline-none text-xs bg-dashBg text-muted"
                                         value={range}
@@ -168,10 +274,10 @@ function Home() {
                                              last 24 hour
                                         </option>
                                    </select>
-                              </div>
+                              </div> */}
                          </div>
                          <div className="[webkit-tap-highlight-color:transparent]">
-                              <ClickChart data={data[range]} />
+                              <ClickChart data={last24Hours} />
                          </div>
                     </div>
 
@@ -280,31 +386,6 @@ function Home() {
                               Top Cities
                          </div>
 
-                         {/* <div className="w-full flex flex-col gap-3 ">
-                              {cities.map((c) => (
-                                   <div
-                                        key={c.city}
-                                        className="w-full flex items-center justify-between  "
-                                   >
-                                        <div className="w-[25%] ">
-                                             <span className="font-bold text-[13px] text-foreground/80 truncate flex items-center gap-3">
-                                                  {c.city}
-                                             </span>
-                                        </div>
-                                        <div className="w-[40%] rounded">
-                                             <div
-                                                  className=" bg-[#fc5a72] h-2 rounded"
-                                                  style={{
-                                                       width: `${(c.total / cityLength) * 100}%`,
-                                                  }}
-                                             ></div>
-                                        </div>
-                                        <div className="w-[15%] text-center text-muted text-xs">
-                                             {c.total}
-                                        </div>
-                                   </div>
-                              ))}
-                         </div> */}
                          <div className="w-full">
                               {cities ? (
                                    <ProgressCard
@@ -317,6 +398,11 @@ function Home() {
                          </div>
                     </div>
                </div>
+               <SuccessModal
+                    open={showModal}
+                    link={shortLink}
+                    onClose={() => setShowModal(false)}
+               />
           </div>
      );
 }

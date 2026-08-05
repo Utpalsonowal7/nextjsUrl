@@ -1,6 +1,7 @@
 import React from "react";
 import { IoIosSearch } from "react-icons/io";
 import Link from "@/components/ui/Link";
+import L from "next/link";
 
 export const links = [
      {
@@ -86,9 +87,9 @@ function Links() {
                          <h4 className="font-bold text-2xl dash-dashText">
                               All Links
                          </h4>
-                         <button className="bg-[#c41e3a] text-white font-medium py-1.5 px-2 rounded">
+                         <L href="/links/create" className="bg-[#c41e3a] text-white font-medium py-1.5 px-2 rounded">
                               Create link
-                         </button>
+                         </L >
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2">
                          <div className="bg-dashBg ">
@@ -110,7 +111,7 @@ function Links() {
                </div>
 
                <div className="flex flex-col gap-4">
-                    {links.map((l, index) => {
+                    {links.map((l) => {
                          const image = images.find(img => img.id === l.id);
                          return (
                               < Link key={l.id} link={l} image={image?.image ?? "/default-icon.png"} />

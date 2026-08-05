@@ -15,6 +15,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+type SidebarProps = {
+     onCreate: () => void;
+};
+
 const navItems = [
      { name: "Home", icon: House, href: "/home" },
      { name: "Links", icon: Link2, href: "/links" },
@@ -24,8 +28,9 @@ const navItems = [
      { name: "Custom Domain", icon: Globe, href: "/domain" },
 ];
 
-function Sidebar() {
+function Sidebar({ onCreate }: SidebarProps) {
      const [navShowing, setNavShowing] = useState<boolean>(false);
+     const [showModal, setShowModal] = useState<boolean>(false);
 
      const pathName = usePathname();
 
@@ -39,31 +44,39 @@ function Sidebar() {
                          </div>
                          <div
                               className=" bg-[#c41e3a] text-white py-2
-                    px-3.5 text-center rounded shadow-xl outline-none text-sm font-bold"
+                    px-3.5 text-center rounded shadow-xl outline-none text-sm font-bold cursor-pointer"
+                              onClick={onCreate}
                          >
                               {navShowing ? (
                                    <button className=" py-3 px-15 rounded shadow-sm">
                                         <Plus />{" "}
                                    </button>
                               ) : (
-                                   <button>Create new</button>
+                                   <button className="cursor-pointer">
+                                        Create new
+                                   </button>
                               )}
                          </div>
                     </div>
 
                     <div className="border-b-2 border-cardBg py-5">
                          <ul className="flex flex-col gap-5">
-                              {navItems.map((ls) => (
-                                   <Link
-                                        href={ls.href}
-                                        key={ls.name}
-                                        className={`flex gap-4 px-3 py-1 items-center font-medium cursor-pointer  text-sm ${pathName === ls.href ? "border-l-4 text-white border-[#c43a21] bg-[#fb7b65] rounded" : "hover:rounded hover:bg-[#fb7b65]"}`}
-                                   >
-                                        <ls.icon className="w-5 h-5 shrink-0" />
+                              {navItems.map((ls) => {
+                                   const isActive =
+                                        pathName === ls.href ||
+                                        pathName.startsWith(`${ls.href}/`);
+                                   return (
+                                        <Link
+                                             href={ls.href}
+                                             key={ls.name}
+                                             className={`flex gap-4 px-3 py-1 items-center font-medium cursor-pointer  text-sm ${isActive ? "border-l-4 text-white border-[#c43a21] bg-[#fb7b65] rounded" : "hover:rounded hover:bg-[#fb7b65]"}`}
+                                        >
+                                             <ls.icon className="w-5 h-5 shrink-0" />
 
-                                        <span>{ls.name}</span>
-                                   </Link>
-                              ))}
+                                             <span>{ls.name}</span>
+                                        </Link>
+                                   );
+                              })}
                          </ul>
                     </div>
 

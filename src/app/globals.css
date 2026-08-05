@@ -84,7 +84,11 @@
 }
 
 @utility shadow2 {
-  box-shadow: 0 0 0 4px var(--shadow2);
+  box-shadow: 0 0 0 2px var(--shadow2);
+}
+
+@utility shadow3 {
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .recharts-wrapper:focus,

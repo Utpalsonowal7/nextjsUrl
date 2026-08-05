@@ -283,7 +283,7 @@ export default function Analytics() {
                     />
                </div>
 
-               <div className="border flex flex-col py-5 px-6 bg-dashBg border-navB rounded-xl gap-5">
+               <div className="border flex flex-col py-5 md:px-6 bg-dashBg border-navB rounded-xl gap-5">
                     <div className="flex items-center justify-between px-2">
                          <div>
                               <h5 className="font-medium text-muted">
@@ -295,7 +295,7 @@ export default function Analytics() {
                          </div>
                     </div>
 
-                    <div className="[webkit-tap-highlight-color:transparent]  px-6">
+                    <div className="[webkit-tap-highlight-color:transparent] px-1 md:px-6">
                          <ClickChart
                               data={overallAnalytics?.clickTrend ?? []}
                          />

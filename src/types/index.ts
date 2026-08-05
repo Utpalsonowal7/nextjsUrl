@@ -5,11 +5,17 @@ export interface Tags {
 }
 
 export interface PostLink {
-     link: string;
+     longUrl: string;
      title?: string;
-     tags?: Tags[];
-     customeCode?: string;
+     tags?: string[];
+     customCode?: string;
      pass?: string;
+}
+
+
+export interface ShortLink {
+     longUrl: string;
+     shortLink: string;
 }
 
 // export interface PostLinkresponse {

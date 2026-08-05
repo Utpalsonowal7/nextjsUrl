@@ -18,15 +18,19 @@ import { useAppSelector } from "@/lib/hooks";
 //      email: "sonowalu73@gmail.com",
 // };
 
-function Header() {
+type HeaderProps = {
+     onCreate: () => void;
+};
+
+function Header({onCreate}:HeaderProps) {
      const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
      const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
 
      const user = useAppSelector(currentUser)
 
-     if (!user) {
-          return <div className="h-16 border-b border-navB animate-pulse" />;
-     }
+     // if (!user) {
+     //      return <div className="h-16 border-b border-navB animate-pulse" />;
+     // }
      
      const name = user?.name ?? "Guest";
 
@@ -92,7 +96,7 @@ function Header() {
                     <div className="w-full">
                          {isSideBarOpen && (
                               <div onClick={()=>setIsSideBarOpen(pre=>!pre)}>
-                                   <Sidebar />
+                                   <Sidebar onCreate={onCreate} />
                               </div>
                          )}
                     </div>
