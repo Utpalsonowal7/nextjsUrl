@@ -6,42 +6,120 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { BsTags } from "react-icons/bs";
 import LinkRoute from "next/link";
 import Link from "@/components/ui/Link";
-import { links } from "@/data/dummyData";
-import { images } from "../page";
 import ClickChart from "@/components/ui/ClickChart";
 import Card from "@/components/ui/Card";
 import PiChart from "@/components/ui/PiChart";
 import SimpleBarChart from "@/components/ui/BarChart";
 import ProgressCard from "@/components/ui/ProgressCard";
 
+import CardSkeleton from "@/components/Skeleton/CardSkeleton";
+import ClicksTrendSkeleton from "@/components/Skeleton/ClicksSkeleton";
+import { LinksListSkeleton } from "@/components/Skeleton/LinkSkeleton";
+
+import { useEffect, useState } from "react";
+import api from "@/api/axios";
+import { AxiosError } from "axios";
+import { getLogo } from "@/utils/GetLogo";
+
+import { DetailsProps } from "@/types";
+import { ApiResponse } from "@/types";
+import { getCountryColor } from "@/utils/ColorPicker";
+
 function Page() {
+     const [range, setRange] = useState<"7" | "30" | "all">("7");
+     const [details, setDetails] = useState<DetailsProps | null>(null);
+     const [err, setErr] = useState<string | null>(null);
+     const [loading, setLoading] = useState<boolean>(false);
      const { id } = useParams<{ id: string }>();
 
-     const link = links.find((l) => l.id === Number(id));
-     const image = images.find((img) => img.id === Number(id));
+     useEffect(() => {
+          const controller = new AbortController();
 
+          const loadState = async () => {
+               setErr("");
+               setLoading(true);
+               try {
+                    const res = await api.get<ApiResponse<DetailsProps>>(
+                         `/links/${id}?range=${range}`,
+                         {
+                              signal: controller.signal,
+                         },
+                    );
 
-     const fullLength = link?.analytics?.countriesData?.reduce(
-          (a, b) => a + b.value,
-          0,
-     )??0;
+                    setDetails(res.data.data);
+               } catch (err) {
+                    const e = err as AxiosError<{ message?: string }>;
+                    if (
+                         e.code === "ERR_CANCELED" ||
+                         e.name === "CanceledError"
+                    ) {
+                         return;
+                    }
+                    setErr(e.response?.data?.message || "Failed to load links");
+               } finally {
+                    setLoading(false);
+               }
+          };
 
-     const fullLength1 = link?.analytics?.browsers?.reduce(
-          (a, b) => a + b.value,
-          0,
-     )??0;
+          setTimeout(() => {
+               loadState();
+          }, 1);
 
-     const fullLength2 = link?.analytics?.devices?.reduce(
-          (a, b) => a + b.value,
-          0,
-     ) ?? 0;
+          return () => controller.abort();
+     }, [id, range]);
+
+     const link = details;
+     const image = link ? getLogo(link.longUrl) : "/default-icon.png";
+
+     const countriesData =
+          link?.analytics?.countriesData.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
      
+     const deviceData =
+          link?.analytics?.devices.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
      
-      if (!link) {
-           return <div>link not found</div>;
-      }
+     const browserData =
+          link?.analytics?.browsers.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
 
-    
+
+     if (loading) {
+          return (
+               <div className="flex flex-col  gap-6 px-5 md:px-16 mb-2">
+                    <LinksListSkeleton count={1} />
+                    <div className="grid grid-cols-2  lg:grid-cols-4 gap-3 md:gap-7">
+                         {Array.from({ length: 4 }, (_, i) => (
+                              <CardSkeleton key={i} />
+                         ))}
+                    </div>
+                    <ClicksTrendSkeleton />
+               </div>
+          );
+     }
+
+     if (err) {
+          return (
+               <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                    {err}
+               </div>
+          );
+     }
+
+     if (!link) {
+          return (
+               <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                    Data Not Found{" "}
+               </div>
+          );
+     }
+
      return (
           <div className="flex flex-col  gap-6 px-5 md:px-16 mb-2">
                <div className="flex gap-2 items-center cursor-pointer">
@@ -57,22 +135,24 @@ function Page() {
                <div>
                     <div className="bg-dashBg rounded-xl py-4 md:px-8">
                          <div className="">
-                              <Link link={link} image={image?.image ?? "vv"} />
+                              <Link link={link} image={image} />
                          </div>
 
                          <div className="px-5 md:px-15">
                               <hr className="border border-navB mb-2" />
                               <div className="flex justify-between items-center">
                                    <div className="flex gap-2 px-3">
-                                        {link.tags ? (
-                                             link.tags.map((t, key) => (
-                                                  <span
-                                                       key={key}
-                                                       className="text-muted text-xs flex items-center bg-dashBg border border-navB rounded-xl py-0.5 px-2 shadow-2xl"
-                                                  >
-                                                       {t}
-                                                  </span>
-                                             ))
+                                        {link.tags?.length > 0 ? (
+                                             link.tags.map(
+                                                  (t: string, key: number) => (
+                                                       <span
+                                                            key={key}
+                                                            className="text-muted text-xs flex items-center bg-dashBg border border-navB rounded-xl py-0.5 px-2 shadow-2xl"
+                                                       >
+                                                            {t}
+                                                       </span>
+                                                  ),
+                                             )
                                         ) : (
                                              <span className=" gap-2 text-muted text-xs flex items-center">
                                                   <BsTags />
@@ -92,7 +172,7 @@ function Page() {
                <div className="grid grid-cols-2  lg:grid-cols-4 gap-3 md:gap-7">
                     <Card
                          name="Total clicks"
-                         data={link.analytics?.totalClicks ?? 0}
+                         data={link?.analytics?.totalClicks ?? 0}
                     />
                     <Card
                          name="Unique visitors"
@@ -100,10 +180,10 @@ function Page() {
                     />
                     <Card
                          name="Daily avg/clicks"
-                         data={link.analytics?.avgDailyClicks ?? 0}
+                         data={Math.round(link.analytics?.avgDailyClicks) ?? 0}
                     />
                     <Card
-                         name="Countries"
+                         name="Countries Reached"
                          data={link.analytics?.countries ?? 0}
                     />
                </div>
@@ -117,12 +197,20 @@ function Page() {
                          </div>
                          <div>
                               <select
-                                   className="outline-none text-xs bg-dashBg text-muted"
-                                   value={7}
+                                   className="outline-none text-xs bg-dashBg text-muted cursor-pointer"
+                                   value={range}
+                                   onChange={(e) =>
+                                        setRange(
+                                             e.target.value as
+                                                  | "7"
+                                                  | "30"
+                                                  | "all",
+                                        )
+                                   }
                               >
-                                   <option value="6h">last 6 hour</option>
-                                   <option value="12h">last 12 hour</option>
-                                   <option value="24h">last 24 hour</option>
+                                   <option value="7">Last 7 days</option>
+                                   <option value="30">Last 30 days</option>
+                                   <option value="all">All time</option>
                               </select>
                          </div>
                     </div>
@@ -140,18 +228,14 @@ function Page() {
                               </div>
                               <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
-                                   <span>{fullLength}</span>
+                                   <span>{link?.analytics?.totalClicks}</span>
                               </div>
                          </div>
 
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
                                    {link?.analytics?.countriesData ? (
-                                        <PiChart
-                                             data={
-                                                  link.analytics?.countriesData
-                                             }
-                                        />
+                                        <PiChart data={countriesData} />
                                    ) : (
                                         <div>No data yet</div>
                                    )}
@@ -183,7 +267,10 @@ function Page() {
                                    {link?.analytics?.countriesData?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / fullLength) * 100,
+                                                  (c.value /
+                                                       link.analytics
+                                                            .totalClicks) *
+                                                       100,
                                              )}
                                              %
                                         </h6>
@@ -191,6 +278,7 @@ function Page() {
                               </div>
                          </div>
                     </div>
+
                     <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
                          <div className="flex justify-between items-center">
                               <div className="text-muted font-medium">
@@ -198,14 +286,14 @@ function Page() {
                               </div>
                               <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
-                                   <span>{fullLength2}</span>
+                                   <span>{link?.analytics?.totalClicks}</span>
                               </div>
                          </div>
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
                                    {link?.analytics?.devices ? (
                                         <PiChart
-                                             data={link.analytics?.devices}
+                                             data={deviceData}
                                         />
                                    ) : (
                                         <div>No data yet</div>
@@ -236,7 +324,7 @@ function Page() {
                                    {link?.analytics?.devices?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / fullLength2) * 100,
+                                                  (c.value / link?.analytics?.totalClicks) * 100,
                                              )}
                                              %
                                         </h6>
@@ -253,10 +341,7 @@ function Page() {
                               <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>
-                                        {link?.analytics?.browsers?.reduce(
-                                             (sum, ac) => sum + ac.value,
-                                             0,
-                                        )}
+                                        {link?.analytics?.totalClicks}
                                    </span>
                               </div>
                          </div>
@@ -264,7 +349,7 @@ function Page() {
                               <div className="w-40">
                                    {link?.analytics?.browsers ? (
                                         <PiChart
-                                             data={link.analytics.browsers}
+                                             data={browserData}
                                         />
                                    ) : (
                                         <div>No data yet</div>
@@ -295,7 +380,7 @@ function Page() {
                                    {link?.analytics?.browsers?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / fullLength1) * 100,
+                                                  (c.value / link.analytics.totalClicks) * 100,
                                              )}
                                              %
                                         </h6>
@@ -314,10 +399,7 @@ function Page() {
                               <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>
-                                        {link?.analytics?.referrers?.reduce(
-                                             (sum, a) => sum + a.clicks,
-                                             0,
-                                        )}
+                                        {link?.analytics?.totalClicks}
                                    </span>
                               </div>
                          </div>

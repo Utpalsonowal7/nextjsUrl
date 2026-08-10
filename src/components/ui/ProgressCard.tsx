@@ -1,9 +1,7 @@
 import React from 'react'
 
-interface CardData{
-     name: string;
-     value: number;
-}
+import { CardData } from '@/types';
+
 interface ProgressProps {
      data: CardData[];
      length:number

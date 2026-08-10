@@ -1,11 +1,7 @@
 "use client";
 
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from "recharts";
-
-type ChartData = {
-     name: string;
-     clicks: number;
-};
+import { ChartData } from "@/types";
 
 interface ClickChartProps {
      isAnimationActive?: boolean;

@@ -1,18 +1,11 @@
 import { Pie, PieChart, Tooltip } from "recharts";
-
-// #region Sample data
-
-interface props {
-     name?: string;
-     value?: number;
-     fill?: string;
-}
+import { PiData } from "@/types";
 
 interface PiProps {
      isAnimationActive?: boolean;
-     data: props[];
+     data: PiData[];
 }
-// #endregion
+
 export default function PiChart({ isAnimationActive = true, data }: PiProps) {
      return (
           <PieChart

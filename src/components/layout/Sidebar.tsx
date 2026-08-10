@@ -52,7 +52,7 @@ function Sidebar({ onCreate }: SidebarProps) {
                                         <Plus />{" "}
                                    </button>
                               ) : (
-                                   <button className="cursor-pointer">
+                                   <button className="cursor-pointer outline-none">
                                         Create new
                                    </button>
                               )}

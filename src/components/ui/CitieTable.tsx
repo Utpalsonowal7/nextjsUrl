@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
-     MdKeyboardArrowUp,
-     MdOutlineKeyboardArrowDown,
+     // MdKeyboardArrowUp,
+     // MdOutlineKeyboardArrowDown,
      MdKeyboardArrowLeft,
      MdKeyboardArrowRight,
 } from "react-icons/md";
@@ -10,8 +10,8 @@ export interface TableData {
      name: string;
      clicks: number;
      percentage: number;
-     diff: number;
-     status: "idle" | "up" | "down";
+     // diff: number;
+     // status: "idle" | "up" | "down";
 }
 
 interface PropsData {
@@ -41,9 +41,9 @@ function CitieTable({ heading, data }: PropsData) {
                               <th className="text-left font-medium">Cities</th>
                               <th className="text-right font-medium">Clicks</th>
                               <th className="text-right font-medium">%</th>
-                              <th className="text-right font-medium">
+                              {/* <th className="text-right font-medium">
                                    vs prev.
-                              </th>
+                              </th> */}
                          </tr>
                     </thead>
 
@@ -65,7 +65,7 @@ function CitieTable({ heading, data }: PropsData) {
                                         {d.percentage}%
                                    </td>
 
-                                   <td className="py-1 text-right">
+                                   {/* <td className="py-1 text-right">
                                         {d.status === "idle" ? (
                                              <span className="text-muted">
                                                   —
@@ -81,7 +81,7 @@ function CitieTable({ heading, data }: PropsData) {
                                                   {d.diff}%
                                              </span>
                                         )}
-                                   </td>
+                                   </td> */}
                               </tr>
                          ))}
                     </tbody>

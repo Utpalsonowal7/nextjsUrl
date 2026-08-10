@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { FiDownload } from "react-icons/fi";
 import { Calendar } from "lucide-react";
@@ -14,182 +14,140 @@ import { useState } from "react";
 import PiChart from "@/components/ui/PiChart";
 import SimpleBarChart from "@/components/ui/BarChart";
 import ProgressCard from "@/components/ui/ProgressCard";
-import LocationMap from "@/components/ui/LocationMap";
+// import LocationMap from "@/components/ui/LocationMap";
 
-export const cityTableData: TableData[] = [
-     {
-          name: "Delhi",
-          clicks: 18234,
-          percentage: 21.8,
-          diff: 8.4,
-          status: "up",
-     },
-     {
-          name: "Mumbai",
-          clicks: 15982,
-          percentage: 19.1,
-          diff: 3.2,
-          status: "up",
-     },
-     {
-          name: "Bengaluru",
-          clicks: 12743,
-          percentage: 15.2,
-          diff: 2.5,
-          status: "down",
-     },
-     {
-          name: "Hyderabad",
-          clicks: 9831,
-          percentage: 11.8,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Chennai",
-          clicks: 8421,
-          percentage: 10.1,
-          diff: 4.6,
-          status: "up",
-     },
-     {
-          name: "Kolkata",
-          clicks: 7198,
-          percentage: 8.6,
-          diff: 1.8,
-          status: "down",
-     },
-     {
-          name: "Pune",
-          clicks: 6450,
-          percentage: 7.7,
-          diff: 5.1,
-          status: "up",
-     },
-     {
-          name: "Ahmedabad",
-          clicks: 5146,
-          percentage: 6.2,
-          diff: 2.3,
-          status: "up",
-     },
-     {
-          name: "Jaipur",
-          clicks: 3980,
-          percentage: 4.8,
-          diff: 1.1,
-          status: "down",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-     {
-          name: "Guwahati",
-          clicks: 2755,
-          percentage: 3.3,
-          diff: 0,
-          status: "idle",
-     },
-];
+import api from "@/api/axios";
+import { AxiosError } from "axios";
+
+import { OverallAnalyticsResponse } from "@/types";
+import { OverallAnalytics } from "@/types";
+import { ApiResponse } from "@/types";
+
+import { LinksListSkeleton } from "@/components/Skeleton/LinkSkeleton";
+import CardSkeleton from "@/components/Skeleton/CardSkeleton";
+import ClicksTrendSkeleton from "@/components/Skeleton/ClicksSkeleton";
+import { getCountryColor } from "@/utils/ColorPicker";
+
 
 export default function Analytics() {
-     const [range, setRange] = useState<"7" | "14" | "30" | "0">("7");
+     const [range, setRange] = useState<"7" | "30" | "0">("7");
+     // const [details, setDetails] = useState<DetailsProps | null>(null);
+     const [analytics, setAnalytics] = useState<OverallAnalytics | null>(null);
+     const [err, setErr] = useState<string | null>(null);
+     const [loading, setLoading] = useState<boolean>(false);
 
-     const totalDevice =
-          overallAnalytics?.devices?.reduce((sum, ac) => sum + ac.value, 0) ??
-          0;
-     const totalOs =
-          overallAnalytics?.os?.reduce((sum, ac) => sum + ac.value, 0) ?? 0;
-     const totalBrowsers =
-          overallAnalytics?.browsers?.reduce((sum, ac) => sum + ac.value, 0) ?? 0;
+     useEffect(() => {
+          const controller = new AbortController();
+
+          const loadState = async () => {
+               setErr("");
+               setLoading(true);
+               try {
+                    const res = await api.get<
+                         ApiResponse<OverallAnalyticsResponse>
+                    >(`/links/overall-analytcs?range=${range}`, {
+                         signal: controller.signal,
+                    });
+
+                    setAnalytics(res.data.data.analytcs);
+               } catch (err) {
+                    const e = err as AxiosError<{ message?: string }>;
+                    if (
+                         e.code === "ERR_CANCELED" ||
+                         e.name === "CanceledError"
+                    ) {
+                         return;
+                    }
+                    setErr(e.response?.data?.message || "Failed to load links");
+               } finally {
+                    setLoading(false);
+               }
+          };
+
+          setTimeout(() => {
+               loadState();
+          }, 1);
+
+          return () => controller.abort();
+     }, [range]);
+
+     console.log(analytics);
+
+     const topEngagementDay = analytics?.clickTrend?.length
+          ? analytics.clickTrend.reduce((max, data) =>
+                 data.clicks > max.clicks ? data : max,
+            )
+          : null;
+
+     console.log(topEngagementDay);
+
+     const shortUrl = `${process.env.NEXT_PUBLIC_SHORT_URL?.replace(
+          /^https?:\/\//,
+          "",
+     )}${analytics?.topLinks[0]?.shortLink}`;
+
+     const cityTotal =
+          analytics?.cities.reduce((sum, city) => sum + city.value, 0) ?? 0;
+
+     const cityTableData: TableData[] =
+          analytics?.cities.map((city) => ({
+               name: city.name,
+               clicks: city.value,
+               percentage:
+                    cityTotal > 0
+                         ? Number(((city.value / cityTotal) * 100).toFixed(1))
+                         : 0,
+          })) ?? [];
+
+      const osData =
+               analytics?.os.map((data) => ({
+                    ...data,
+                    fill: getCountryColor(data.name),
+               })) ?? [];
+
+     const deviceData =
+        analytics?.devices.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
+
+     const browserData =
+          analytics?.browsers.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
+
+ 
+
+     if (loading) {
+          return (
+               <div className="flex flex-col  gap-6 px-5 md:px-16 mb-2">
+                    <LinksListSkeleton count={1} />
+                    <div className="grid grid-cols-2  lg:grid-cols-4 gap-3 md:gap-7">
+                         {Array.from({ length: 4 }, (_, i) => (
+                              <CardSkeleton key={i} />
+                         ))}
+                    </div>
+                    <ClicksTrendSkeleton />
+               </div>
+          );
+     }
+
+     if (err) {
+          return (
+               <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                    {err}
+               </div>
+          );
+     }
+
+     if (!analytics) {
+          return (
+               <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                    Data Not Found{" "}
+               </div>
+          );
+     }
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
@@ -216,16 +174,11 @@ export default function Analytics() {
                                         e: React.ChangeEvent<HTMLSelectElement>,
                                    ) =>
                                         setRange(
-                                             e.target.value as
-                                                  | "7"
-                                                  | "14"
-                                                  | "30"
-                                                  | "0",
+                                             e.target.value as "7" | "30" | "0",
                                         )
                                    }
                               >
                                    <option value="7">Last 7 Days</option>
-                                   <option value="14">Last 14 Days</option>
                                    <option value="30">Last Month</option>
                                    <option value="0">All time</option>
                               </select>
@@ -236,50 +189,41 @@ export default function Analytics() {
                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <Card
                          name="Total links"
-                         data={overallAnalytics?.totalLinks}
+                         data={analytics?.totalLinks ?? 0}
                     />
                     <Card
                          name="Total clicks"
-                         data={overallAnalytics?.totalClicks}
+                         data={analytics?.totalClicks ?? 0}
                     />
                     <Card
                          name="Unique visitors"
-                         data={overallAnalytics?.uniqueVisitors}
+                         data={analytics?.uniqueVisitors ?? 0}
                     />
                     <Card
                          name="Countries reached"
-                         data={overallAnalytics?.countriesReached}
+                         data={analytics?.countriesReached ?? 0}
                     />
                     <Card
                          name="Avg daily  clicks"
-                         data={overallAnalytics?.avgDailyClicks}
+                         data={Math.round(analytics?.avgDailyClicks) ?? 0}
                     />
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <TopCard
-                         label={
-                              overallAnalytics?.highlights?.topEngagementDay
-                                   ?.label
-                         }
-                         name={
-                              overallAnalytics?.highlights?.topEngagementDay
-                                   ?.name
-                         }
-                         data={
-                              overallAnalytics?.highlights?.topEngagementDay
-                                   ?.clicks
-                         }
+                         label="Top day by engagements"
+                         name={topEngagementDay?.name}
+                         data={topEngagementDay?.clicks}
                     />
                     <TopCard
-                         label={overallAnalytics?.highlights?.topLink?.label}
-                         name={overallAnalytics?.highlights?.topLink?.shortLink}
-                         data={overallAnalytics?.highlights?.topLink?.clicks}
+                         label="Top link by engagements"
+                         name={shortUrl}
+                         data={analytics?.topLinks[0].clicks}
                     />
                     <TopCard
                          label="Top location by engagements"
-                         name={overallAnalytics?.highlights?.topCity?.name}
-                         data={overallAnalytics?.highlights?.topCity?.value}
+                         name={analytics?.cities[0].name}
+                         data={analytics?.cities[0].value}
                     />
                </div>
 
@@ -296,9 +240,7 @@ export default function Analytics() {
                     </div>
 
                     <div className="[webkit-tap-highlight-color:transparent] px-1 md:px-6">
-                         <ClickChart
-                              data={overallAnalytics?.clickTrend ?? []}
-                         />
+                         <ClickChart data={analytics?.clickTrend ?? []} />
                     </div>
                </div>
 
@@ -313,7 +255,7 @@ export default function Analytics() {
                               <div className="text-muted font-medium">
                                    Referrers
                               </div>
-                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                              {/* <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>
                                         {overallAnalytics?.referrers?.reduce(
@@ -321,13 +263,13 @@ export default function Analytics() {
                                              0,
                                         )}
                                    </span>
-                              </div>
+                              </div> */}
                          </div>
 
                          <div className="py-5">
                               {overallAnalytics?.referrers ? (
                                    <SimpleBarChart
-                                        data={overallAnalytics?.referrers}
+                                        data={analytics?.referrers}
                                         datakey="source"
                                    />
                               ) : (
@@ -343,16 +285,16 @@ export default function Analytics() {
                               <div className="text-muted font-medium">
                                    Devices
                               </div>
-                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                              {/* <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>{totalDevice}</span>
-                              </div>
+                              </div> */}
                          </div>
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
-                                   {overallAnalytics?.devices ? (
+                                   {analytics?.devices ? (
                                         <PiChart
-                                             data={overallAnalytics?.devices}
+                                             data={deviceData}
                                         />
                                    ) : (
                                         <div>No data yet</div>
@@ -360,7 +302,7 @@ export default function Analytics() {
                               </div>
 
                               <div className="flex flex-col gap-2">
-                                   {overallAnalytics?.devices?.map((err) => (
+                                   {deviceData?.map((err) => (
                                         <p
                                              key={err.name}
                                              className="flex items-center gap-2 text-[10px] text-muted"
@@ -380,10 +322,10 @@ export default function Analytics() {
                                    ))}
                               </div>
                               <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
-                                   {overallAnalytics?.devices?.map((c) => (
+                                   {deviceData?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / totalDevice) * 100,
+                                                  (c.value / analytics.totalClicks) * 100,
                                              )}
                                              %
                                         </h6>
@@ -394,22 +336,22 @@ export default function Analytics() {
                     <div className="bg-dashBg flex flex-col px-3 md:px-10 py-5  gap-5 border border-navB rounded-xl">
                          <div className="flex justify-between items-center">
                               <div className="text-muted font-medium">OS</div>
-                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                              {/* <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>{totalOs}</span>
-                              </div>
+                              </div> */}
                          </div>
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
-                                   {overallAnalytics?.os ? (
-                                        <PiChart data={overallAnalytics?.os} />
+                                   {osData ? (
+                                        <PiChart data={osData} />
                                    ) : (
                                         <div>No data yet</div>
                                    )}
                               </div>
 
                               <div className="flex flex-col gap-2">
-                                   {overallAnalytics?.os?.map((err) => (
+                                   {osData?.map((err) => (
                                         <p
                                              key={err.name}
                                              className="flex items-center gap-2 text-[10px] text-muted"
@@ -429,10 +371,10 @@ export default function Analytics() {
                                    ))}
                               </div>
                               <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
-                                   {overallAnalytics?.os?.map((c) => (
+                                   {osData?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / totalOs) * 100,
+                                                  (c.value / analytics?.totalClicks) * 100,
                                              )}
                                              %
                                         </h6>
@@ -445,16 +387,16 @@ export default function Analytics() {
                               <div className="text-muted font-medium">
                                    Browsers
                               </div>
-                              <div className="text-muted text-xs flex gap-2 items-center font-medium">
+                              {/* <div className="text-muted text-xs flex gap-2 items-center font-medium">
                                    <span>clicks</span>
                                    <span>{totalBrowsers}</span>
-                              </div>
+                              </div> */}
                          </div>
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
-                                   {overallAnalytics?.browsers ? (
+                                   {browserData ? (
                                         <PiChart
-                                             data={overallAnalytics?.browsers}
+                                             data={browserData}
                                         />
                                    ) : (
                                         <div>No data yet</div>
@@ -462,7 +404,7 @@ export default function Analytics() {
                               </div>
 
                               <div className="flex flex-col gap-2">
-                                   {overallAnalytics?.browsers?.map((err) => (
+                                   {browserData.map((err) => (
                                         <p
                                              key={err.name}
                                              className="flex items-center gap-2 text-[10px] text-muted"
@@ -482,10 +424,10 @@ export default function Analytics() {
                                    ))}
                               </div>
                               <div className="flex flex-col gap-2 text-xs text-dashText font-bold">
-                                   {overallAnalytics?.devices?.map((c) => (
+                                   {browserData.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / totalBrowsers) *
+                                                  (c.value / analytics?.totalClicks) *
                                                        100,
                                              )}
                                              %
@@ -501,11 +443,11 @@ export default function Analytics() {
                          <div className="text-muted font-medium">OS</div>
 
                          <div className="w-full">
-                              {overallAnalytics?.countriesData ? (
+                              {analytics?.countriesData ? (
                                    <ProgressCard
-                                        data={overallAnalytics.countriesData}
+                                        data={analytics.countriesData}
                                         length={Math.max(
-                                             overallAnalytics.countriesData.reduce(
+                                             analytics.countriesData.reduce(
                                                   (max, a) =>
                                                        max > a.value
                                                             ? max
@@ -520,11 +462,11 @@ export default function Analytics() {
                          </div>
                     </div>
 
-                    <div className="bg-dashBg p-5 rounded-xl">
+                    {/* <div className="bg-dashBg p-5 rounded-xl">
                          <h2 className="text-muted mb-4">Click locations</h2>
 
                          <LocationMap />
-                    </div>
+                    </div> */}
                </div>
           </div>
      );

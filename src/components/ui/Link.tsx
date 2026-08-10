@@ -50,21 +50,21 @@ function Link({ link, image }: LinkProps) {
                     <div className="min-w-0 flex-1 flex flex-col gap-2.5">
                          <div className="truncate text-muted font-medium hover:underline">
                               <LinkRoute href={`/links/${link.id}`}>
-                                   {link.desc}
+                                   {link.title}
                               </LinkRoute>
                          </div>
                          <h5 className="font-bold text-[13px] text-foreground/80 truncate flex items-center gap-3">
                               <a
-                                   href={link.shortLink}
+                                   href={link.shortUrl}
                                    target="_blank"
                                    className="text-short hover:underline"
                               >
-                                   {link.shortLink?.replace("https://", "")}
+                                   {link.shortUrl?.replace(/^https?:\/\//, "")}
                               </a>
                               <button
                                    onClick={(e) => {
                                         e.stopPropagation();
-                                        handleCopy(link.id, link.shortLink);
+                                        handleCopy(link.id, link.shortUrl);
                                    }}
                                    className="cursor-pointer text-short"
                               >
@@ -78,9 +78,12 @@ function Link({ link, image }: LinkProps) {
                          <a
                               href={link.longUrl}
                               target="_blank"
-                              className="flex  gap-1.5 text-xs text-muted truncate hover:underline"
+                              rel="noopener noreferrer"
+                              className="flex min-w-0 items-center gap-1.5 text-xs text-muted hover:underline"
                          >
-                              <MdOutlineSubdirectoryArrowRight /> {link.longUrl}
+                              <MdOutlineSubdirectoryArrowRight className="shrink-0" />
+
+                              <span className="truncate">{link.longUrl}</span>
                          </a>
                     </div>
                </div>
