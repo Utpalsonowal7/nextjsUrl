@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 
 import { FiDownload } from "react-icons/fi";
 import { Calendar } from "lucide-react";
-import { overallAnalytics } from "@/data/dummyData";
 import Card from "@/components/ui/Card";
 import TopCard from "@/components/ui/TopCard";
 import ClickChart from "@/components/ui/ClickChart";
@@ -71,7 +70,7 @@ export default function Analytics() {
           return () => controller.abort();
      }, [range]);
 
-     console.log(analytics);
+    
 
      const topEngagementDay = analytics?.clickTrend?.length
           ? analytics.clickTrend.reduce((max, data) =>
@@ -79,7 +78,7 @@ export default function Analytics() {
             )
           : null;
 
-     console.log(topEngagementDay);
+    
 
      const shortUrl = `${process.env.NEXT_PUBLIC_SHORT_URL?.replace(
           /^https?:\/\//,
@@ -267,7 +266,7 @@ export default function Analytics() {
                          </div>
 
                          <div className="py-5">
-                              {overallAnalytics?.referrers ? (
+                              {analytics?.referrers ? (
                                    <SimpleBarChart
                                         data={analytics?.referrers}
                                         datakey="source"

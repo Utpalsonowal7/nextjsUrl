@@ -113,7 +113,7 @@ function CreateLink() {
                     "/links",
                     payload,
                );
-               console.log(data);
+             
                setShortLink(data.data);
                setShowModal(true);
           } catch (err) {
