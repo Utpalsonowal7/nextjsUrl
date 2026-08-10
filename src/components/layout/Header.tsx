@@ -110,7 +110,7 @@ function Header({onCreate}:HeaderProps) {
                          .join("")
                          .toUpperCase()}
                     name={name}
-                    email={user?.email}
+                    email={user?.email ?? ""}
                />
           </>
      );
