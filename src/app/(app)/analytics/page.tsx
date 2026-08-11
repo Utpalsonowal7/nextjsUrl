@@ -27,7 +27,6 @@ import CardSkeleton from "@/components/Skeleton/CardSkeleton";
 import ClicksTrendSkeleton from "@/components/Skeleton/ClicksSkeleton";
 import { getCountryColor } from "@/utils/ColorPicker";
 
-
 export default function Analytics() {
      const [range, setRange] = useState<"7" | "30" | "0">("7");
      // const [details, setDetails] = useState<DetailsProps | null>(null);
@@ -70,15 +69,11 @@ export default function Analytics() {
           return () => controller.abort();
      }, [range]);
 
-    
-
      const topEngagementDay = analytics?.clickTrend?.length
           ? analytics.clickTrend.reduce((max, data) =>
                  data.clicks > max.clicks ? data : max,
             )
           : null;
-
-    
 
      const shortUrl = `${process.env.NEXT_PUBLIC_SHORT_URL?.replace(
           /^https?:\/\//,
@@ -98,14 +93,14 @@ export default function Analytics() {
                          : 0,
           })) ?? [];
 
-      const osData =
-               analytics?.os.map((data) => ({
-                    ...data,
-                    fill: getCountryColor(data.name),
-               })) ?? [];
+     const osData =
+          analytics?.os.map((data) => ({
+               ...data,
+               fill: getCountryColor(data.name),
+          })) ?? [];
 
      const deviceData =
-        analytics?.devices.map((data) => ({
+          analytics?.devices.map((data) => ({
                ...data,
                fill: getCountryColor(data.name),
           })) ?? [];
@@ -115,8 +110,6 @@ export default function Analytics() {
                ...data,
                fill: getCountryColor(data.name),
           })) ?? [];
-
- 
 
      if (loading) {
           return (
@@ -140,10 +133,18 @@ export default function Analytics() {
           );
      }
 
-     if (!analytics) {
+     if (!analytics || analytics.totalLinks === 0) {
           return (
-               <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
-                    Data Not Found{" "}
+               <div className="flex min-h-[400px] items-center justify-center">
+                    <div className="text-center">
+                         <h2 className="text-lg font-semibold">
+                              No analytics yet
+                         </h2>
+                         <p className="mt-1 text-sm text-muted">
+                              Create a link and start getting clicks to see
+                              analytics.
+                         </p>
+                    </div>
                </div>
           );
      }
@@ -292,9 +293,7 @@ export default function Analytics() {
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
                                    {analytics?.devices ? (
-                                        <PiChart
-                                             data={deviceData}
-                                        />
+                                        <PiChart data={deviceData} />
                                    ) : (
                                         <div>No data yet</div>
                                    )}
@@ -324,7 +323,9 @@ export default function Analytics() {
                                    {deviceData?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / analytics.totalClicks) * 100,
+                                                  (c.value /
+                                                       analytics.totalClicks) *
+                                                       100,
                                              )}
                                              %
                                         </h6>
@@ -373,7 +374,9 @@ export default function Analytics() {
                                    {osData?.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / analytics?.totalClicks) * 100,
+                                                  (c.value /
+                                                       analytics?.totalClicks) *
+                                                       100,
                                              )}
                                              %
                                         </h6>
@@ -394,9 +397,7 @@ export default function Analytics() {
                          <div className="flex items-center justify-between  px-1">
                               <div className="w-40">
                                    {browserData ? (
-                                        <PiChart
-                                             data={browserData}
-                                        />
+                                        <PiChart data={browserData} />
                                    ) : (
                                         <div>No data yet</div>
                                    )}
@@ -426,7 +427,8 @@ export default function Analytics() {
                                    {browserData.map((c) => (
                                         <h6 key={c.name}>
                                              {Math.floor(
-                                                  (c.value / analytics?.totalClicks) *
+                                                  (c.value /
+                                                       analytics?.totalClicks) *
                                                        100,
                                              )}
                                              %

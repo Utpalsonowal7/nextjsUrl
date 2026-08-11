@@ -55,13 +55,13 @@ const DeleteModal = ({ isOpen, onClose, id }: DeleteModalProps) => {
                     }
                }}
           >
-               <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+               <div className="w-full max-w-sm rounded-xl bg-dashBg p-6 shadow-xl">
                     <div className="mb-4 flex items-center justify-between">
                          <h2 className="text-lg font-semibold">Delete link?</h2>
 
                          <button
                               onClick={onClose}
-                              className="cursor-pointer text-gray-500 hover:text-black"
+                              className="cursor-pointer text-muted hover:text-black"
                          >
                               <IoClose size={22} />
                          </button>
