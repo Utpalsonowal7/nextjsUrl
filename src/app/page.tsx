@@ -5,16 +5,23 @@ import Link from "next/link";
 import Theme from "@/components/theme";
 import { faqs } from "@/data/faq";
 import { weOffer } from "@/data/weOffer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { contributions } from "@/data/contribution";
-import { useAppSelector } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { currentUser } from "@/lib/features/auth/authSlice";
+import { getCurrentUser } from "@/lib/features/auth/authThunks";
 
 export default function Home() {
      const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-     const user = useAppSelector(currentUser)
+     const dispatch = useAppDispatch();
+
+     useEffect(() => {
+          dispatch(getCurrentUser());
+     }, [dispatch]);
+
+     const user = useAppSelector(currentUser);
 
      return (
           <>
@@ -40,21 +47,21 @@ export default function Home() {
                               FAQ
                          </a>
                          <Link href="/login">LOGIN</Link>
-                         {user ?
+                         {user ? (
                               <Link
                                    href="/home"
                                    className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded hover:underline"
                               >
                                    Dashboard
                               </Link>
-                              :
+                         ) : (
                               <Link
                                    href="/register"
                                    className="bg-[#c41e3a] text-white py-1 px-2 md:py-4 md:px-4 rounded"
                               >
                                    Get Started
                               </Link>
-                         }
+                         )}
                          {/* <button
                               onClick={() =>
                                    setTheme(
