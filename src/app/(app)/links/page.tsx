@@ -16,6 +16,10 @@ import { userLinks, LinkProps, ApiResponse } from "@/types";
 import { getLogo } from "@/utils/GetLogo";
 import { AxiosError } from "axios";
 
+import { useDispatch, useSelector } from "react-redux";
+import { setLinks } from "@/lib/features/link/linkSlice";
+import type { AppDispatch, RootState } from "@/lib/store";
+
 export const links = [
      {
           id: 1,
@@ -95,8 +99,12 @@ export const images = [
 function Links() {
      const [loading, setLoading] = useState<boolean>(false);
      const [search, setSearch] = useState<string | null>("");
-     const [links, setLinks] = useState<userLinks[]>([]);
+     // const [links, setLinks] = useState<userLinks[]>([]);
      const [err, setErr] = useState<string>("");
+
+     const dispatch = useDispatch<AppDispatch>();
+
+     const links = useSelector((state: RootState) => state.link.links);
 
      useEffect(() => {
           const controller = new AbortController();
@@ -108,34 +116,50 @@ function Links() {
                try {
                     const res = await api.get<
                          ApiResponse<{ links: { links: userLinks[] } }>
-                    >("/links/user-links", { signal: controller.signal });
+                    >("/links/user-links", {
+                         signal: controller.signal,
+                    });
 
-                    setLinks(res.data.data.links.links);
+                    const userLinks = res.data.data.links.links;
+
+                    const allLinks: LinkProps[] = userLinks.map((l) => ({
+                         link: l,
+                         image: getLogo(l.longUrl),
+                    }));
+
+                    dispatch(setLinks(allLinks));
                } catch (err) {
                     const e = err as AxiosError<{ message?: string }>;
-                     if (
-                          e.code === "ERR_CANCELED" ||
-                          e.name === "CanceledError"
-                     ) {
-                          return;
-                     }
+
+                    if (
+                         e.code === "ERR_CANCELED" ||
+                         e.name === "CanceledError"
+                    ) {
+                         return;
+                    }
+
                     setErr(e.response?.data?.message || "Failed to load links");
                } finally {
                     setLoading(false);
                }
           };
 
-         setTimeout(() => {
-          loadState();
-         }, 1); ;
+          const timer = setTimeout(() => {
+               loadState();
+          }, 1);
 
-          return () => controller.abort();
-     }, []);
+          return () => {
+               clearTimeout(timer);
+               controller.abort();
+          };
+     }, [dispatch]);
 
-     const allLinks: LinkProps[] = links.map((l) => ({
-          link: l,
-          image: getLogo(l.longUrl),
-     }));
+     // const allLinks: LinkProps[] = links.map((l) => ({
+     //      link: l,
+     //      image: getLogo(l.longUrl),
+     // }));
+
+     // dispatch(setLinks(allLinks));
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
@@ -194,7 +218,7 @@ function Links() {
                     <LinksListSkeleton count={4} />
                ) : (
                     <div className="flex flex-col gap-4">
-                         {allLinks.map((l) => {
+                         {links.map((l) => {
                               return (
                                    <Link
                                         key={l.link.id}

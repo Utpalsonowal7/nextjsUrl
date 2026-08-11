@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/lib/features/auth/authSlice";
+import linkReducer from "@/lib/features/link/linkSlice";
 
 export const makeStore = () => {
      return configureStore({
           reducer: {
                auth: authReducer,
+               link: linkReducer,
           },
      });
 };

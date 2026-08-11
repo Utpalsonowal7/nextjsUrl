@@ -1,7 +1,7 @@
 "use client";
 
 import { LinkProps } from "@/types";
-import  LinkRoute  from "next/link";
+import LinkRoute from "next/link";
 import Image from "next/image";
 
 import {
@@ -11,11 +11,28 @@ import {
      MdDelete,
 } from "react-icons/md";
 import { IoAnalyticsSharp } from "react-icons/io5";
-import { IoIosCheckmarkCircle, IoMdShare  } from "react-icons/io";
+import { IoIosCheckmarkCircle, IoMdShare } from "react-icons/io";
 import { useState } from "react";
+
+import DeleteModal from "../models/DeleteModel";
+import ShareModal from "../models/ShareModal";
 
 function Link({ link, image }: LinkProps) {
      const [copied, setIsCopied] = useState<number | null | undefined>(null);
+     const [shareOpen, setShareOpen] = useState(false);
+     const [shareLink, setShareLink] = useState("");
+     const [id, setId] = useState<number>(0);
+     const [openModel, setOpenModel] = useState<boolean>(false);
+
+     const handleShare = (link: string) => {
+          setShareLink(link);
+          setShareOpen(true);
+     };
+
+     const handleDelete = (id: number) => {
+          setId(id);
+          setOpenModel(true);
+     };
 
      const handleCopy = async (
           id: number | undefined,
@@ -89,13 +106,31 @@ function Link({ link, image }: LinkProps) {
                </div>
                <div className="px-4 md:px-10 flex flex-col md:flex-row gap-2 md:gap-7">
                     <MdEdit className="w-5 h-5" />
-                    <IoMdShare className="w-5 h-5" />
+                    <IoMdShare
+                         className="w-5 h-5"
+                         onClick={() => handleShare(link.shortUrl)}
+                    />
                     <LinkRoute href={`/links/${link.id}`}>
                          {" "}
                          <IoAnalyticsSharp className="w-5 h-5" />
                     </LinkRoute>
-                    <MdDelete className="w-5 h-5" />
+                    <MdDelete
+                         className="w-5 h-5"
+                         onClick={() => handleDelete(link.id)}
+                    />
                </div>
+
+               <ShareModal
+                    isOpen={shareOpen}
+                    onClose={() => setShareOpen(false)}
+                    link={shareLink}
+               />
+
+               <DeleteModal
+                    isOpen={openModel}
+                    onClose={() => setOpenModel(false)}
+                    id={id}
+               />
           </div>
      );
 }

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "leaflet/dist/leaflet.css";
 import StoreProvider from "./StoreProvider";
 import AuthProvider from "./AuthProvider";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const sora = Sora({
      subsets: ["latin"],
@@ -29,14 +30,16 @@ export default function RootLayout({
           >
                <body className="min-h-full flex flex-col">
                     <StoreProvider>
-                         <ThemeProvider
-                              attribute="class"
-                              defaultTheme="system"
-                              enableSystem
-                              disableTransitionOnChange
-                         >
-                              <AuthProvider>{children}</AuthProvider>
-                         </ThemeProvider>
+                         <ToastProvider>
+                              <ThemeProvider
+                                   attribute="class"
+                                   defaultTheme="system"
+                                   enableSystem
+                                   disableTransitionOnChange
+                              >
+                                   <AuthProvider>{children}</AuthProvider>
+                              </ThemeProvider>
+                         </ToastProvider>
                     </StoreProvider>
                </body>
           </html>
