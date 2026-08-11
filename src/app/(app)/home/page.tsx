@@ -285,7 +285,7 @@ function Home() {
                               </div> */}
                                    </div>
                                    <div className="[webkit-tap-highlight-color:transparent]">
-                                        {clickData ? (
+                                        {clickData && clickData.length > 0 ? (
                                              <ClickChart
                                                   data={clickData ?? []}
                                              />
