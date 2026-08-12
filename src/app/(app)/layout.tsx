@@ -17,7 +17,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
      useEffect(() => {
           if (status === "failed") {
-               router.push("/login");
+               router.push("/");
           }
      }, [status, router]);
 
