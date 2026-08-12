@@ -68,7 +68,12 @@ api.interceptors.response.use(
                     return api(originalRequest);
                } catch (error) {
                     processQueue(error);
-                    window.location.href = "/";
+                    if (
+                         typeof window !== "undefined" &&
+                         window.location.pathname !== "/"
+                    ) {
+                         window.location.replace("/");
+                    }
                     return Promise.reject(error);
                } finally {
                     isRefreshing = false;
