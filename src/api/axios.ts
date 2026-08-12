@@ -68,7 +68,7 @@ api.interceptors.response.use(
                     return api(originalRequest);
                } catch (error) {
                     processQueue(error);
-                    window.location.href = "/login";
+                    window.location.href = "/";
                     return Promise.reject(error);
                } finally {
                     isRefreshing = false;
