@@ -47,7 +47,7 @@ export default function CreateModel({ open, onClose }: Props) {
                               </h3>
                          </Link>
 
-                         <Link href="" className="flex md:flex-col gap-3 items-center px-2 py-2 group rounded-xl border border-navB  text-left transition-all hover:-translate-y-1 hover:border-short hover:shadow md:px-3 md:py-4" onClick={onClose}>
+                         <Link href="/qr/create" className="flex md:flex-col gap-3 items-center px-2 py-2 group rounded-xl border border-navB  text-left transition-all hover:-translate-y-1 hover:border-short hover:shadow md:px-3 md:py-4" onClick={onClose}>
                               <div className=" flex h-5 w-5 items-center justify-center rounded-2xl ">
                                    <QrCode className="text-[#c43a21]" />
                               </div>
