@@ -1,10 +1,15 @@
 "use client";
 
-import type { DataModulesSettings, FinderPatternInnerSettings } from "@lglab/react-qr-code";
+import type {
+     DataModulesSettings,
+     FinderPatternInnerSettings,
+     FinderPatternOuterSettings,
+} from "@lglab/react-qr-code";
 
 export type QRDataModules = DataModulesSettings;
 
-export type QRFinderPattern = FinderPatternSettings;
+export type QRFinderPatternInner = FinderPatternInnerSettings;
+export type QRFinderPatternOuter = FinderPatternOuterSettings;
 
 export type QRImageSettings = {
      src: string;
@@ -17,8 +22,8 @@ export type QRImageSettings = {
 export type QROptions = {
      background: string;
      dataModules: QRDataModules;
-     finderOuter: QRFinderPattern;
-     finderInner: QRFinderPattern;
+     finderOuter: QRFinderPatternOuter;
+     finderInner: QRFinderPatternInner;
      image: QRImageSettings;
 };
 
@@ -83,11 +88,11 @@ export default function QRCustomization({ options, onChange }: Props) {
      // Inverted (light modules on dark background) is the main real-world
      // scan-breaker, so we check polarity first, then fall back to a plain
      // contrast check for low-contrast same-polarity combos.
-     const dataLum = getLuminance(options.dataModules.color);
+     const dataLum = getLuminance(options.dataModules.color ?? "#fff");
      const bgLum = getLuminance(options.background);
      const isInverted = dataLum > bgLum;
      const contrast = getContrastRatio(
-          options.dataModules.color,
+          options.dataModules.color ?? "#000",
           options.background,
      );
      const lowContrast = !isInverted && contrast < 3;
