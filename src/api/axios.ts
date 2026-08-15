@@ -16,6 +16,8 @@ const refrshEndPointApi: AxiosInstance = axios.create({
      withCredentials: true,
 });
 
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
+
 interface FailedQueueResponse {
      resolve: () => void;
      reject: (error: unknown) => void;
@@ -70,7 +72,7 @@ api.interceptors.response.use(
                     processQueue(error);
                     if (
                          typeof window !== "undefined" &&
-                         window.location.pathname !== "/"
+                         !PUBLIC_ROUTES.includes(window.location.pathname)
                     ) {
                          window.location.replace("/");
                     }

@@ -1,14 +1,10 @@
 "use client";
 
-export type QRDataModules = {
-     color: string;
-     style: string;
-};
+import type { DataModulesSettings, FinderPatternInnerSettings } from "@lglab/react-qr-code";
 
-export type QRFinderPattern = {
-     color: string;
-     style: string;
-};
+export type QRDataModules = DataModulesSettings;
+
+export type QRFinderPattern = FinderPatternSettings;
 
 export type QRImageSettings = {
      src: string;
