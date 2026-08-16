@@ -448,6 +448,14 @@
 // export default CreateCode;
 
 "use client";
+
+import { Italianno } from "next/font/google";
+
+const italianno = Italianno({
+     weight: "400",
+     subsets: ["latin"],
+});
+
 import React from "react";
 import { useRef, useState } from "react";
 
@@ -484,7 +492,7 @@ function CreateCode() {
      const [stage, setStage] = useState<string>("link");
 
      // Branding name shown with the QR code and baked into the exported image
-     const [brandingName, setBrandingName] = useState<string>("");
+     const [brandingName, setBrandingName] = useState<string>("scan me");
      const [downloading, setDownloading] = useState<"png" | "jpg" | null>(null);
 
      // Wraps the branding name + QR code so the whole block can be exported
@@ -878,12 +886,6 @@ function CreateCode() {
                                    ref={qrCaptureRef}
                                    className="flex flex-col items-center gap-4 bg-white p-4 rounded-xl"
                               >
-                                   {brandingName.trim() && (
-                                        <p className="text-base font-extrabold text-black text-center max-w-[260px] break-words">
-                                             {brandingName}
-                                        </p>
-                                   )}
-
                                    <ReactQRCode
                                         value={
                                              form.longUrl ||
@@ -906,6 +908,10 @@ function CreateCode() {
                                              qrOptions.image ?? undefined
                                         }
                                    />
+
+                                   <p className={` ${italianno.className} text-base font-extrabold text-black text-center max-w-[260px] break-words`}>
+                                        {brandingName}
+                                   </p>
                               </div>
 
                               {/* Branding name input */}
