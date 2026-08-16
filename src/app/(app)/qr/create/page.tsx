@@ -893,7 +893,7 @@ function CreateCode() {
                                         }
                                         size={220}
                                         marginSize={4}
-                                        level="M"
+                                        level="H"
                                         background={qrOptions.background}
                                         dataModulesSettings={
                                              qrOptions.dataModules
