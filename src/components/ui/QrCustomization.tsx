@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import type {
      DataModulesSettings,
      FinderPatternInnerSettings,
@@ -32,9 +34,6 @@ type Props = {
      onChange: (options: QROptions) => void;
 };
 
-// Relative luminance (WCAG-style) so we can tell if the data-module color
-// is lighter than the background — i.e. an inverted QR code that many
-// camera scanners struggle to lock onto.
 function getLuminance(hex: string): number {
      const clean = hex.replace("#", "");
 
@@ -85,9 +84,6 @@ export default function QRCustomization({ options, onChange }: Props) {
           });
      };
 
-     // Inverted (light modules on dark background) is the main real-world
-     // scan-breaker, so we check polarity first, then fall back to a plain
-     // contrast check for low-contrast same-polarity combos.
      const dataLum = getLuminance(options.dataModules.color ?? "#fff");
      const bgLum = getLuminance(options.background);
      const isInverted = dataLum > bgLum;
@@ -100,7 +96,6 @@ export default function QRCustomization({ options, onChange }: Props) {
 
      return (
           <div className="w-full space-y-8">
-               {/* BRANDING */}
 
                <div>
                     <h2 className="text-lg font-extrabold text-dashText">
@@ -111,8 +106,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                          Make your QR Code stand out and match your brand
                     </p>
                </div>
-
-               {/* QR COLOR */}
 
                <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wide text-muted">
@@ -141,8 +134,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                     </div>
                </div>
 
-               {/* BACKGROUND */}
-
                <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wide text-muted">
                          Background
@@ -169,8 +160,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                     </div>
                </div>
 
-               {/* SCAN RISK WARNING */}
-
                {showScanWarning && (
                     <div className="flex items-start gap-2.5 border border-amber-500/30 bg-amber-500/10 rounded-xl px-3 py-3">
                          <span className="text-amber-500 text-base leading-none mt-0.5">
@@ -190,8 +179,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                          </div>
                     </div>
                )}
-
-               {/* PATTERN */}
 
                <div className="space-y-3">
                     <label className="text-xs font-bold uppercase tracking-wide text-muted">
@@ -230,8 +217,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                     </div>
                </div>
 
-               {/* EYES */}
-
                <div className="space-y-3">
                     <label className="text-xs font-bold uppercase tracking-wide text-muted">
                          Eyes
@@ -263,8 +248,6 @@ export default function QRCustomization({ options, onChange }: Props) {
                     </div>
                </div>
 
-               {/* LOGO */}
-
                <div className="space-y-3">
                     <label className="text-xs font-bold uppercase tracking-wide text-muted">
                          Logo
@@ -279,15 +262,23 @@ export default function QRCustomization({ options, onChange }: Props) {
 
                                    if (!file) return;
 
-                                   const src = URL.createObjectURL(file);
+                                   // const src = URL.createObjectURL(file);
+                                   const reader = new FileReader();
 
-                                   updateOption("image", {
-                                        src,
-                                        width: 50,
-                                        height: 50,
-                                        excavate: true,
-                                        opacity: 1,
-                                   });
+                                   reader.onload = () => {
+                                        if (typeof reader.result !== "string")
+                                             return;
+
+                                        updateOption("image", {
+                                             src: reader.result,
+                                             width: 50,
+                                             height: 50,
+                                             excavate: true,
+                                             opacity: 1,
+                                        });
+                                   };
+
+                                   reader.readAsDataURL(file);
                               }}
                               className="w-full text-sm text-dashText file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-short file:text-white file:text-xs file:font-bold file:cursor-pointer cursor-pointer"
                          />
@@ -295,9 +286,11 @@ export default function QRCustomization({ options, onChange }: Props) {
                          {options.image && (
                               <div className="flex items-center justify-between mt-3 bg-cardBg border border-cardBorder rounded-lg p-2">
                                    <div className="flex items-center gap-2">
-                                        <img
+                                        <Image
                                              src={options.image.src}
                                              alt="QR logo"
+                                             width={9}
+                                             height={9}
                                              className="w-9 h-9 object-contain border border-cardBorder rounded bg-background"
                                         />
                                         <span className="text-xs text-muted font-medium">
@@ -310,7 +303,7 @@ export default function QRCustomization({ options, onChange }: Props) {
                                         onClick={() =>
                                              updateOption("image", null)
                                         }
-                                        className="text-xs font-bold text-short hover:underline"
+                                        className="text-xs font-bold text-short hover:underline cursor-pointer"
                                    >
                                         Remove
                                    </button>
