@@ -87,6 +87,16 @@ export interface userLinks {
      tags: string[];
 }
 
+export interface userQrs {
+     id: number;
+     shortcode: string;
+     title: string;
+     shortUrl: string;
+     longUrl: string;
+     tags: string[];
+     qrUrl: string;
+}
+
 export interface LinkProps {
      link: userLinks;
      image: string;

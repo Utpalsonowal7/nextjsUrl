@@ -247,7 +247,6 @@ function GenerateQr() {
                const message =
                     "Something went wrong saving your QR code. Please try again.";
                setDownloadError(message);
-               showToast(message, "error");
           } finally {
                setDownloading(null);
           }
