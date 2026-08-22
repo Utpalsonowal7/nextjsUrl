@@ -16,7 +16,11 @@ const refrshEndPointApi: AxiosInstance = axios.create({
      withCredentials: true,
 });
 
-const PUBLIC_ROUTES = ["/", "/login", "/register"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/link-expired"];
+
+const isPublicRoute = (pathname: string) => {
+     return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/temp/");
+};
 
 interface FailedQueueResponse {
      resolve: () => void;
@@ -70,12 +74,12 @@ api.interceptors.response.use(
                     return api(originalRequest);
                } catch (error) {
                     processQueue(error);
-                    if (
-                         typeof window !== "undefined" &&
-                         !PUBLIC_ROUTES.includes(window.location.pathname)
-                    ) {
-                         window.location.replace("/");
-                    }
+                     if (
+                          typeof window !== "undefined" &&
+                          !isPublicRoute(window.location.pathname)
+                     ) {
+                          window.location.replace("/");
+                     }
                     return Promise.reject(error);
                } finally {
                     isRefreshing = false;
