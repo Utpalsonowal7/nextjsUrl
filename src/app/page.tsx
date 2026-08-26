@@ -75,10 +75,9 @@ export default function Home() {
               console.log("Donation order created:", donationOrder);
 
 
-              if (!window.Razorpay) {
-                   throw new Error("Razorpay SDK is not loaded");
-              }
-
+             if (!(window as any).Razorpay) {
+                  throw new Error("Razorpay SDK is not loaded");
+             }
 
               const options = {
                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
