@@ -12,8 +12,12 @@ import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { currentUser } from "@/lib/features/auth/authSlice";
 import { getCurrentUser } from "@/lib/features/auth/authThunks";
 import DonationModal from "@/components/models/DonationModal";
+import api from "@/api/axios";
+import { IoIosCheckmarkCircle } from "react-icons/io";
+import { MdContentCopy } from "react-icons/md";
 
 export default function Home() {
+     const [copied, setCopied] = useState<boolean>(false);
      const [openIndex, setOpenIndex] = useState<number | null>(null);
      const [donating, setDonating] = useState<string | null>(null);
      const [donationModal, setDonationModal] = useState(false);
@@ -28,6 +32,61 @@ export default function Home() {
           email: "",
           phone: "",
      });
+
+     const [longUrl, setLongUrl] = useState("");
+     const [customCode, setShortCode] = useState("");
+
+     const [shortenLoading, setShortenLoading] = useState(false);
+     const [shortenError, setShortenError] = useState<string | null>(null);
+     const [shortenSuccess, setShortenSuccess] = useState<{
+          message: string;
+          data: {
+               rel: string;
+          };
+     } | null>(null);
+
+     const copy = async () => {
+          await navigator.clipboard.writeText(
+               shortenSuccess?.data.rel ?? "https://app.utpx.in",
+          );
+
+          setCopied(true);
+
+          setTimeout(() => {
+               setCopied(false);
+          }, 2000);
+     };
+
+     const handleShortenSubmit = async (
+          e: React.FormEvent<HTMLFormElement>,
+     ) => {
+          e.preventDefault();
+
+          setShortenError(null);
+          setShortenSuccess(null);
+
+          if (!longUrl.trim()) {
+               setShortenError("Please enter a destination URL");
+               return;
+          }
+
+          try {
+               setShortenLoading(true);
+
+               const res = await api.post("/temp/create", {
+                    longUrl,
+                    customCode,
+               });
+
+               setShortenSuccess(res?.data);
+          } catch (error) {
+               console.error("Shorten URL error:", error);
+
+               setShortenError("Something went wrong");
+          } finally {
+               setShortenLoading(false);
+          }
+     };
 
      const dispatch = useAppDispatch();
 
@@ -125,7 +184,7 @@ export default function Home() {
                     prefill: {
                          name: form.name,
                          email: form.email,
-                         contact: form.phone,
+                         contact: `+91${form.phone}`,
                     },
 
                     theme: {
@@ -333,50 +392,121 @@ export default function Home() {
                                    </a>
                               </div>
                          </div>
-                         <div className="w-[85%] md:w-[55%] flex flex-col  border-5 border-border/90 gap-7 py-7 px-5 lg:px-8 bg-background shadow ">
-                              <div className=" flex flex-col gap-2 font-extrabold text-foreground text-[12px] tracking-[8px] ">
-                                   <h1>SHORTNER MODULE</h1>
-                                   <hr className="h-[.1px] mt-1 border-0 bg-foreground/30" />
-                              </div>
-                              <div>
-                                   <form className=" flex flex-col gap-6">
-                                        <section>
-                                             <label
-                                                  htmlFor="url"
-                                                  className="text-text text-[11px] font-extrabold"
-                                             >
-                                                  DESTINATION URL
-                                             </label>
-                                             <input
-                                                  type="url"
-                                                  className="w-full border-2 border-border py-4 mt-1 px-4 outline-none  focus:shadow2 text-input text-[16px] font-semibold"
-                                                  placeholder="https://example.com"
-                                             />
-                                        </section>
 
-                                        <section>
-                                             <label
-                                                  htmlFor="url"
-                                                  className="text-text text-[11px] font-extrabold"
-                                             >
-                                                  CUSTOM ALIAS (optional)
-                                             </label>
-                                             <input
-                                                  type="url"
-                                                  className="w-full border-2 border-border py-4 mt-1 px-4 outline-none focus:shadow2 text-input text-[16px] font-semibold"
-                                                  placeholder="e.g. my-link"
-                                             />
-                                        </section>
-                                        <button className="w-full flex items-center justify-center gap-2 bg-foreground py-4 px-4 cursor-pointer transition-transform duration-150 active:translate-y-1">
-                                             <ArrowRight
-                                                  className="text-background"
-                                                  size={15}
-                                             />
-                                             <span className="text-background font-black text-[14px]">
-                                                  GENERATE NOW
+                         <div className="w-[85%] md:w-[55%] flex flex-col gap-5">
+                              {shortenSuccess && (
+                                   <div className="w-full flex flex-col  border-5 border-border/90 bg-background shadow">
+                                        <div className="text-text text-sm font-extrabold py-2 px-5">
+                                             <p>{shortenSuccess.message}</p>
+                                        </div>
+
+                                        <div className="flex items-center px-5">
+                                             <span className="text-input text-[16px] font-semibold">
+                                                  {shortenSuccess?.data?.rel}
                                              </span>
-                                        </button>
-                                   </form>
+
+                                             <button
+                                                  onClick={copy}
+                                                  className="rounded-lg p-2 hover:bg-navB transition cursor-pointer"
+                                             >
+                                                  {copied ? (
+                                                       <IoIosCheckmarkCircle
+                                                            size={20}
+                                                            className="text-#a2a09d"
+                                                       />
+                                                  ) : (
+                                                       <MdContentCopy
+                                                            className="text-input text-[16px] font-semibold"
+                                                            size={20}
+                                                       />
+                                                  )}
+                                             </button>
+                                        </div>
+                                   </div>
+                              )}
+
+                              {shortenError && (
+                                   <div className="w-full flex flex-col  border-5 border-red-700/90 bg-red-700 ">
+                                        <span className="text-white text-[16px] font-semibold">
+                                             {shortenError}
+                                        </span>
+                                   </div>
+                              )}
+                              <div className="w-full flex flex-col  border-5 border-border/90 gap-7 py-7 px-5 lg:px-8 bg-background shadow ">
+                                   <div className=" flex flex-col gap-2 font-extrabold text-foreground text-[12px] tracking-[8px] ">
+                                        <h1>SHORTNER MODULE</h1>
+                                        <hr className="h-[.1px] mt-1 border-0 bg-foreground/30" />
+                                   </div>
+                                   <div>
+                                        <form
+                                             onSubmit={handleShortenSubmit}
+                                             className="flex flex-col gap-6"
+                                        >
+                                             <section>
+                                                  <label
+                                                       htmlFor="long-url"
+                                                       className="text-text text-[11px] font-extrabold"
+                                                  >
+                                                       DESTINATION URL
+                                                  </label>
+
+                                                  <input
+                                                       id="long-url"
+                                                       type="url"
+                                                       name="long-url"
+                                                       value={longUrl}
+                                                       onChange={(e) =>
+                                                            setLongUrl(
+                                                                 e.target.value,
+                                                            )
+                                                       }
+                                                       className="w-full border-2 border-border py-4 mt-1 px-4 outline-none focus:shadow2 text-input text-[16px] font-semibold"
+                                                       placeholder="https://example.com"
+                                                       required
+                                                  />
+                                             </section>
+
+                                             <section>
+                                                  <label
+                                                       htmlFor="custom-alias"
+                                                       className="text-text text-[11px] font-extrabold"
+                                                  >
+                                                       CUSTOM ALIAS (optional)
+                                                  </label>
+
+                                                  <input
+                                                       id="custom-alias"
+                                                       type="text"
+                                                       name="custom-alias"
+                                                       value={customCode}
+                                                       onChange={(e) =>
+                                                            setShortCode(
+                                                                 e.target.value,
+                                                            )
+                                                       }
+                                                       className="w-full border-2 border-border py-4 mt-1 px-4 outline-none focus:shadow2 text-input text-[16px] font-semibold"
+                                                       placeholder="e.g. my-link"
+                                                  />
+                                             </section>
+
+                                             <button
+                                                  type="submit"
+                                                  disabled={shortenLoading}
+                                                  className="w-full flex items-center justify-center gap-2 bg-foreground py-4 px-4 cursor-pointer transition-transform duration-150 active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                             >
+                                                  <ArrowRight
+                                                       className="text-background"
+                                                       size={15}
+                                                  />
+
+                                                  <span className="text-background font-black text-[14px]">
+                                                       {shortenLoading
+                                                            ? "GENERATING..."
+                                                            : "GENERATE NOW"}
+                                                  </span>
+                                             </button>
+                                        </form>
+                                   </div>
                               </div>
                          </div>
                     </section>
