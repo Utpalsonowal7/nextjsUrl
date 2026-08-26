@@ -14,6 +14,7 @@ import { getCurrentUser } from "@/lib/features/auth/authThunks";
 
 export default function Home() {
      const [openIndex, setOpenIndex] = useState<number | null>(null);
+     const [donating, setDonating] = useState<string | null>(null);
 
      const dispatch = useAppDispatch();
 
@@ -21,7 +22,205 @@ export default function Home() {
           dispatch(getCurrentUser());
      }, [dispatch]);
 
+     useEffect(() => {
+          const script = document.createElement("script");
+
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.async = true;
+
+          document.body.appendChild(script);
+
+          return () => {
+               document.body.removeChild(script);
+          };
+     }, []);
+
      const user = useAppSelector(currentUser);
+
+    const handleDonation = async (
+         amount: number,
+         contributionTitle: string,
+    ) => {
+         try {
+              setDonating(contributionTitle);
+
+              
+
+              const response = await fetch(
+                   `${process.env.NEXT_PUBLIC_BACkEND_URL}order/create-order`,
+                   {
+                        method: "POST",
+                        headers: {
+                             "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                             name: user?.name || "Anonymous",
+                             email: user?.email || "",
+                             phone: "",
+                             amount,
+                        }),
+                   },
+              );
+
+              const result = await response.json();
+
+              if (!response.ok || !result.success) {
+                   throw new Error(
+                        result.message || "Failed to create donation order",
+                   );
+              }
+
+              const donationOrder = result.data.donationOrder;
+
+              console.log("Donation order created:", donationOrder);
+
+
+              if (!window.Razorpay) {
+                   throw new Error("Razorpay SDK is not loaded");
+              }
+
+
+              const options = {
+                   key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+
+                   amount: donationOrder.amount,
+
+                   currency: donationOrder.currency,
+
+                   name: "LnkShrt",
+
+                   description: "Support LnkShrt development",
+
+                   order_id: donationOrder.orderId,
+
+                   prefill: {
+                        name: user?.name || "",
+                        email: user?.email || "",
+                   },
+
+                   theme: {
+                        color: "#c41e3a",
+                   },
+
+                  
+
+                   handler: async (paymentResponse: {
+                        razorpay_payment_id: string;
+                        razorpay_order_id: string;
+                        razorpay_signature: string;
+                   }) => {
+                        try {
+                             console.log("Payment successful!");
+
+                             console.log(
+                                  "Payment ID:",
+                                  paymentResponse.razorpay_payment_id,
+                             );
+
+                             console.log(
+                                  "Order ID:",
+                                  paymentResponse.razorpay_order_id,
+                             );
+
+                             console.log(
+                                  "Signature:",
+                                  paymentResponse.razorpay_signature,
+                             );
+
+                            
+
+                             const verifyResponse = await fetch(
+                                  `${process.env.NEXT_PUBLIC_BACkEND_URL}order/verify-payment`,
+                                  {
+                                       method: "POST",
+
+                                       headers: {
+                                            "Content-Type": "application/json",
+                                       },
+
+                                       body: JSON.stringify({
+                                            donationId:
+                                                 donationOrder.donationId,
+
+                                            razorpayOrderId:
+                                                 paymentResponse.razorpay_order_id,
+
+                                            razorpayPaymentId:
+                                                 paymentResponse.razorpay_payment_id,
+
+                                            razorpaySignature:
+                                                 paymentResponse.razorpay_signature,
+                                       }),
+                                  },
+                             );
+
+                             const verifyResult = await verifyResponse.json();
+
+                             console.log(
+                                  "Verification response:",
+                                  verifyResult,
+                             );
+
+                             if (!verifyResponse.ok || !verifyResult.success) {
+                                  throw new Error(
+                                       verifyResult.message ||
+                                            "Payment verification failed",
+                                  );
+                             }
+
+                           
+
+                             console.log(
+                                  "Donation payment verified successfully!",
+                             );
+
+                             alert(
+                                  "Thank you! Your donation was successful ❤️",
+                             );
+                        } catch (error) {
+                             console.error(
+                                  "Payment verification error:",
+                                  error,
+                             );
+
+                             alert(
+                                  error instanceof Error
+                                       ? error.message
+                                       : "Payment verification failed",
+                             );
+                        } finally {
+                             setDonating(false);
+                        }
+                   },
+
+                   
+
+                   modal: {
+                        ondismiss: () => {
+                             console.log("Razorpay checkout closed");
+
+                             setDonating(false);
+                        },
+                   },
+              };
+
+            
+
+              const razorpay = new (window as any).Razorpay(options);
+
+              razorpay.open();
+         } catch (error) {
+              console.error("Donation error:", error);
+
+              alert(
+                   error instanceof Error
+                        ? error.message
+                        : "Unable to start donation",
+              );
+
+              setDonating(false);
+         }
+    };
 
      return (
           <>
@@ -242,7 +441,7 @@ export default function Home() {
                                                   </h2>
 
                                                   <h3 className="mt-3 text-5xl font-black tracking-tight text-foreground">
-                                                       {con.amount}
+                                                       {`₹${con.amount}`}
                                                   </h3>
                                              </div>
 
@@ -251,8 +450,15 @@ export default function Home() {
                                              </p>
                                         </div>
 
-                                        <a
-                                             href="#"
+                                        <button
+                                             type="button"
+                                             disabled={donating !== null}
+                                             onClick={() =>
+                                                  handleDonation(
+                                                       Number(con.amount),
+                                                       con.title,
+                                                  )
+                                             }
                                              className="
           mt-2
           rounded-lg
@@ -263,13 +469,18 @@ export default function Home() {
           font-bold
           uppercase
           tracking-wider
+          cursor-pointer
           transition-colors duration-200
           hover:bg-foreground
           hover:text-background
-        "
+          disabled:opacity-50
+          disabled:cursor-not-allowed
+     "
                                         >
-                                             Donate Now →
-                                        </a>
+                                             {donating === con.title
+                                                  ? "Processing..."
+                                                  : "Donate Now →"}
+                                        </button>
                                    </div>
                               ))}
                          </div>
