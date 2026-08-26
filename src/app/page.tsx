@@ -188,7 +188,7 @@ export default function Home() {
                                        : "Payment verification failed",
                              );
                         } finally {
-                             setDonating(false);
+                             setDonating(null);
                         }
                    },
 
@@ -198,7 +198,7 @@ export default function Home() {
                         ondismiss: () => {
                              console.log("Razorpay checkout closed");
 
-                             setDonating(false);
+                             setDonating(null);
                         },
                    },
               };
@@ -217,7 +217,7 @@ export default function Home() {
                         : "Unable to start donation",
               );
 
-              setDonating(false);
+              setDonating(null);
          }
     };
 
