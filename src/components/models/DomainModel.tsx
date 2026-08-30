@@ -6,7 +6,7 @@ import { FaXmark } from "react-icons/fa6";
 type AddDomainModalProps = {
      isOpen: boolean;
      onClose: () => void;
-     onAdd: (domain: string) => void;
+     onAdd: (domain: string) => void | Promise<void>;
 };
 
 export default function AddDomainModal({
@@ -18,21 +18,28 @@ export default function AddDomainModal({
 
      if (!isOpen) return null;
 
-     const handleSubmit = (e: React.FormEvent) => {
+     const handleSubmit = async (e: React.FormEvent) => {
           e.preventDefault();
 
           const value = domain.trim();
 
           if (!value) return;
 
-          onAdd(value);
+          await onAdd(value);
+
+          setDomain("");
+     };
+
+     const handleClose = () => {
+          setDomain("");
+          onClose();
      };
 
      return (
           <div
                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
                onMouseDown={(e) => {
-                    if (e.target === e.currentTarget) onClose();
+                    if (e.target === e.currentTarget) handleClose();
                }}
           >
                <div className="w-full max-w-md rounded-lg border border-navB bg-dashBg p-5 shadow-xl">
@@ -43,7 +50,7 @@ export default function AddDomainModal({
 
                          <button
                               type="button"
-                              onClick={onClose}
+                              onClick={handleClose}
                               className="rounded p-1 text-muted transition hover:bg-navB"
                          >
                               <FaXmark size={18} />
@@ -77,7 +84,7 @@ export default function AddDomainModal({
                          <div className="mt-6 flex justify-end gap-2">
                               <button
                                    type="button"
-                                   onClick={onClose}
+                                   onClick={handleClose}
                                    className="rounded border border-navB px-4 py-2 text-sm font-medium hover:bg-navB"
                               >
                                    Cancel

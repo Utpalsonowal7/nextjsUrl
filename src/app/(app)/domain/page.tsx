@@ -1,208 +1,311 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosSearch, IoMdAdd } from "react-icons/io";
 import { FaXmark } from "react-icons/fa6";
-import Link from "@/components/ui/Link";
-import L from "next/link";
-
-import { useState, useEffect } from "react";
-import { LinksListSkeleton } from "@/components/Skeleton/LinkSkeleton";
-
-import api from "@/api/axios";
-
-import { userLinks, LinkProps, ApiResponse } from "@/types";
-
-import { getLogo } from "@/utils/GetLogo";
 import { AxiosError } from "axios";
 
-import { useDispatch, useSelector } from "react-redux";
-import { setLinks } from "@/lib/features/link/linkSlice";
-import type { AppDispatch, RootState } from "@/lib/store";
-
-import { dummyDomains } from "@/data/dummyData";
+import api from "@/api/axios";
+import { LinksListSkeleton } from "@/components/Skeleton/LinkSkeleton";
 import AddDomainModal from "@/components/models/DomainModel";
-import { title } from "process";
+import VerifyDomainModal from "@/components/models/VerifyDomainModel";
 
-function Links() {
-     const [open, setOpen] = useState<boolean>(false);
-     const [loading, setLoading] = useState<boolean>(false);
-     const [search, setSearch] = useState<string | null>("");
-     // const [links, setLinks] = useState<userLinks[]>([]);
-     const [err, setErr] = useState<string>("");
+type Domain = {
+     id: number;
+     domain: string;
+     isVerified: boolean;
+     verifiedAt: string | null;
+     createdAt: string;
+     updatedAt?: string;
 
-     const dispatch = useDispatch<AppDispatch>();
+     dns?: {
+          verification: {
+               type: string;
+               name: string;
+               value: string;
+          };
+          routing: {
+               type: string;
+               name: string;
+               value: string;
+          };
+     };
+};
 
-     const links = useSelector((state: RootState) => state.link.links);
+function Domains() {
+     const [open, setOpen] = useState(false);
+     const [verifyOpen, setVerifyOpen] = useState(false);
 
-     // useEffect(() => {
-     //      const controller = new AbortController();
+     const [loading, setLoading] = useState(false);
+     const [adding, setAdding] = useState(false);
 
-     //      const loadState = async () => {
-     //           setErr("");
-     //           setLoading(true);
+     const [search, setSearch] = useState("");
+     const [err, setErr] = useState("");
 
-     //           try {
-     //                const res = await api.get<
-     //                     ApiResponse<{ links: { links: userLinks[] } }>
-     //                >("/links/user-links", {
-     //                     signal: controller.signal,
-     //                });
+     const [domains, setDomains] = useState<Domain[]>([]);
+     const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
 
-     //                const userLinks = res.data.data.links.links;
+     const getDomains = async () => {
+          try {
+               setLoading(true);
+               setErr("");
 
-     //                const allLinks: LinkProps[] = userLinks.map((l) => ({
-     //                     link: l,
-     //                     image: getLogo(l.longUrl),
-     //                }));
+               const res = await api.get("/domain");
 
-     //                dispatch(setLinks(allLinks));
-     //           } catch (err) {
-     //                const e = err as AxiosError<{ message?: string }>;
+               console.log("Domains:", res.data.data);
 
-     //                if (
-     //                     e.code === "ERR_CANCELED" ||
-     //                     e.name === "CanceledError"
-     //                ) {
-     //                     return;
-     //                }
+               setDomains(res.data.data.domains);
+          } catch (error) {
+               const e = error as AxiosError<{ message?: string }>;
 
-     //                setErr(e.response?.data?.message || "Failed to load links");
-     //           } finally {
-     //                setLoading(false);
-     //           }
-     //      };
+               setErr(e.response?.data?.message || "Failed to load domains");
+          } finally {
+               setLoading(false);
+          }
+     };
 
-     //      const timer = setTimeout(() => {
-     //           loadState();
-     //      }, 1);
+     useEffect(() => {
+          getDomains();
+     }, []);
 
-     //      return () => {
-     //           clearTimeout(timer);
-     //           controller.abort();
-     //      };
-     // }, [dispatch]);
+     console.log(domains)
+     const handleAddDomain = async (domain: string) => {
+          try {
+               setAdding(true);
+               setErr("");
 
-     // const allLinks: LinkProps[] = links.map((l) => ({
-     //      link: l,
-     //      image: getLogo(l.longUrl),
-     // }));
+               const res = await api.post("/domain", {
+                    domain,
+               });
 
-     // dispatch(setLinks(allLinks));
+               console.log("Domain created:", res.data);
 
+               const newDomain = res.data.data;
+               console.log(newDomain)
+               /*
+                * Add newly created domain to the list
+                */
+               setDomains((prev) => [newDomain, ...prev]);
+
+               /*
+                * Save newly created domain
+                * so we can show DNS instructions
+                */
+               setSelectedDomain(newDomain);
+
+               setOpen(false);
+
+               /*
+                * Open DNS verification modal
+                */
+               setVerifyOpen(true);
+          } catch (error) {
+               const e = error as AxiosError<{ message?: string }>;
+
+               setErr(e.response?.data?.message || "Failed to add domain");
+          } finally {
+               setAdding(false);
+          }
+     };
+
+     /*
+      * Open verification modal
+      */
+     const handleVerifyClick = (domain: Domain) => {
+          setSelectedDomain(domain);
+          setVerifyOpen(true);
+     };
+
+     /*
+      * Verify domain
+      */
+     const handleVerifyDomain = async () => {
+          if (!selectedDomain) return;
+
+          try {
+               setErr("");
+
+               /*
+                * Your verify endpoint
+                * Change this if your route is different.
+                */
+               const res = await api.post(
+                    `/domains/${selectedDomain.id}/verify`,
+               );
+
+               console.log("Domain verified:", res.data);
+
+               /*
+                * Update domain in UI
+                */
+               setDomains((prev) =>
+                    prev.map((domain) =>
+                         domain.id === selectedDomain.id
+                              ? {
+                                     ...domain,
+                                     isVerified: true,
+                                     verifiedAt: new Date().toISOString(),
+                                }
+                              : domain,
+                    ),
+               );
+
+               setSelectedDomain((prev) =>
+                    prev
+                         ? {
+                                ...prev,
+                                isVerified: true,
+                                verifiedAt: new Date().toISOString(),
+                           }
+                         : null,
+               );
+
+               setVerifyOpen(false);
+          } catch (error) {
+               const e = error as AxiosError<{ message?: string }>;
+
+               setErr(e.response?.data?.message || "DNS verification failed");
+          }
+     };
+
+     const filteredDomains = domains?.filter((domain) =>
+          domain.domain.toLowerCase().includes(search.toLowerCase()),
+     );
+
+     console.log(selectedDomain)
      return (
           <>
-               <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
+               <div className="mb-3 flex flex-col gap-6 px-3 md:px-16">
+                    {/* Error */}
                     {err && (
-                         <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                         <div className="rounded border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
                               {err}
                          </div>
                     )}
-                    <div className="flex flex-col gap-5 py-6 border-b border-navB">
-                         <div className="flex items-center justify-between">
-                              <h4 className="font-bold text-2xl dash-dashText">
+
+                    {/* Header */}
+                    <div className="flex flex-col gap-5 border-b border-navB py-6">
+                         <div className="flex items-center justify-between gap-4">
+                              <h4 className="text-2xl font-bold dash-dashText">
                                    Domains
                               </h4>
+
                               <button
-                                   className="bg-[#c41e3a] text-white font-medium py-1.5 px-2 rounded flex gap-2 items-center cursor-pointer"
-                                   onClick={() => setOpen((pre) => !pre)}
+                                   type="button"
+                                   disabled={adding}
+                                   onClick={() => setOpen(true)}
+                                   className="flex cursor-pointer items-center gap-2 rounded bg-[#c41e3a] px-3 py-1.5 font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                               >
-                                   <IoMdAdd size={25} /> Add a domain
+                                   <IoMdAdd size={25} />
+
+                                   {adding ? "Adding..." : "Add a domain"}
                               </button>
                          </div>
-                         <div>
-                              <p className="text-muted">
-                                   Manage your custom domains for branded short
-                                   links.
-                              </p>
-                         </div>
+
+                         <p className="text-muted">
+                              Manage your custom domains for branded short
+                              links.
+                         </p>
+
+                         {/* Search */}
                          <div className="grid grid-cols-1 md:grid-cols-2">
-                              <div className="bg-dashBg ">
+                              <div className="bg-dashBg">
                                    <form
-                                        className="flex items-center gap-1 border border-navB py-3 px-3 rounded shadow-xs font-medium text-muted   focus-within:ring-2
-                                        focus-within:ring-[#f59180]/30"
+                                        onSubmit={(e) => e.preventDefault()}
+                                        className="flex items-center gap-1 rounded border border-navB px-3 py-3 font-medium text-muted shadow-xs focus-within:ring-2 focus-within:ring-[#f59180]/30"
                                    >
-                                        <span>
-                                             <IoIosSearch />
-                                        </span>
+                                        <IoIosSearch />
+
                                         <input
                                              type="text"
-                                             name="search"
-                                             value={search ?? ""}
-                                             onChange={(
-                                                  e: React.ChangeEvent<HTMLInputElement>,
-                                             ) => setSearch(e.target.value)}
-                                             placeholder="search domains"
-                                             className="w-full outline-none text-sm "
+                                             value={search}
+                                             onChange={(e) =>
+                                                  setSearch(e.target.value)
+                                             }
+                                             placeholder="Search domains"
+                                             className="w-full text-sm outline-none"
                                         />
-                                        <span className="w-20 text-end">
-                                             {search ? (
-                                                  <FaXmark
-                                                       className="cursor-pointer"
-                                                       onClick={() =>
-                                                            setSearch("")
-                                                       }
-                                                  />
-                                             ) : (
-                                                  ""
-                                             )}
-                                        </span>
+
+                                        {search && (
+                                             <FaXmark
+                                                  className="cursor-pointer"
+                                                  onClick={() => setSearch("")}
+                                             />
+                                        )}
                                    </form>
                               </div>
                          </div>
                     </div>
 
+                    {/* Domain List */}
                     {loading ? (
                          <LinksListSkeleton count={4} />
-                    ) : (
+                    ) : filteredDomains.length > 0 ? (
                          <div className="flex flex-col gap-4">
-                              {dummyDomains.map((domain) => (
+                              {filteredDomains.map((domain) => (
                                    <div
                                         key={domain.id}
-                                        className="border border-navB bg-dashBg rounded-lg p-4 md:p-5 flex items-center justify-between gap-4 hover:border-[#f59180]/50 transition"
+                                        className="flex items-center justify-between gap-4 rounded-lg border border-navB bg-dashBg p-4 transition hover:border-[#f59180]/50 md:p-5"
                                    >
-                                        <div className="flex items-center gap-4 min-w-0">
-                                             <div className="w-11 h-11 shrink-0 rounded-lg border border-navB bg-background flex items-center justify-center">
+                                        {/* Domain */}
+                                        <div className="flex min-w-0 items-center gap-4">
+                                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-navB bg-background">
                                                   <span className="text-xl">
                                                        🌐
                                                   </span>
                                              </div>
 
                                              <div className="min-w-0">
-                                                  <div className="flex items-center gap-2 flex-wrap">
-                                                       <h3 className="font-semibold text-base md:text-lg truncate">
+                                                  <div className="flex flex-wrap items-center gap-2">
+                                                       <h3 className="truncate text-base font-semibold md:text-lg">
                                                             {domain.domain}
                                                        </h3>
 
-                                                       {domain.verified ? (
-                                                            <span className="text-xs font-medium text-green-600 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-full">
+                                                       {domain.isVerified ? (
+                                                            <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2 py-1 text-xs font-medium text-green-600">
                                                                  Verified
                                                             </span>
                                                        ) : (
-                                                            <span className="text-xs font-medium text-yellow-600 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded-full">
+                                                            <span className="rounded-full border border-yellow-500/20 bg-yellow-500/10 px-2 py-1 text-xs font-medium text-yellow-600">
                                                                  Unverified
                                                             </span>
                                                        )}
                                                   </div>
 
-                                                  <p className="text-xs text-muted mt-1">
-                                                       Added {domain.createdAt}
+                                                  <p className="mt-1 text-xs text-muted">
+                                                       Added{" "}
+                                                       {new Date(
+                                                            domain.createdAt,
+                                                       ).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                                 month: "short",
+                                                                 day: "numeric",
+                                                                 year: "numeric",
+                                                            },
+                                                       )}
                                                   </p>
                                              </div>
                                         </div>
 
+                                        {/* Action */}
                                         <div className="shrink-0">
-                                             {domain.verified ? (
+                                             {domain.isVerified ? (
                                                   <button
-                                                       className="border border-navB px-3 py-2 rounded text-sm font-medium
-                              hover:bg-navB transition"
+                                                       type="button"
+                                                       className="rounded border border-navB px-3 py-2 text-sm font-medium transition hover:bg-navB"
                                                   >
                                                        Manage
                                                   </button>
                                              ) : (
                                                   <button
-                                                       className="bg-[#c41e3a] text-white px-3 py-2 rounded text-sm font-medium
-                              hover:opacity-90 transition"
+                                                       type="button"
+                                                       onClick={() =>
+                                                            handleVerifyClick(
+                                                                 domain,
+                                                            )
+                                                       }
+                                                       className="rounded bg-[#c41e3a] px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 cursor-pointer"
                                                   >
                                                        Verify
                                                   </button>
@@ -211,23 +314,50 @@ function Links() {
                                    </div>
                               ))}
                          </div>
+                    ) : (
+                         /* Empty state */
+                         <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border border-dashed border-navB text-center">
+                              <div className="text-4xl">🌐</div>
+
+                              <h3 className="mt-4 text-lg font-semibold dash-dashText">
+                                   No domains found
+                              </h3>
+
+                              <p className="mt-1 text-sm text-muted">
+                                   Add a custom domain to create branded short
+                                   links.
+                              </p>
+
+                              {!search && (
+                                   <button
+                                        type="button"
+                                        onClick={() => setOpen(true)}
+                                        className="mt-4 rounded bg-[#c41e3a] px-4 py-2 text-sm font-medium text-white"
+                                   >
+                                        Add a domain
+                                   </button>
+                              )}
+                         </div>
                     )}
                </div>
 
+            
                <AddDomainModal
                     isOpen={open}
                     onClose={() => setOpen(false)}
-                    onAdd={(domain) => {
-                         console.log("domain is:", domain);
-
-                         // API later
-                         // api.post("/domains", { domain });
-
-                         setOpen(false);
-                    }}
+                    onAdd={handleAddDomain}
                />
+
+               {selectedDomain && (
+                    <VerifyDomainModal
+                         isOpen={verifyOpen}
+                         onClose={() => setVerifyOpen(false)}
+                         domain={selectedDomain}
+                         onVerify={handleVerifyDomain}
+                    />
+               )}
           </>
      );
 }
 
-export default Links;
+export default Domains;
