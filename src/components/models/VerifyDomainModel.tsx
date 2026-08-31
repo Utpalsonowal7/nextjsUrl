@@ -9,12 +9,6 @@ type VerifyDomain = {
      isVerified: boolean;
 
      dns?: {
-          verification: {
-               type: string;
-               name: string;
-               value: string;
-          };
-
           routing: {
                type: string;
                name: string;
@@ -37,12 +31,13 @@ export default function VerifyDomainModal({
      onVerify,
 }: VerifyDomainModalProps) {
      if (!isOpen) return null;
-     console.log(JSON.stringify(domain, null, 2));
 
      const copy = async (value: string) => {
           await navigator.clipboard.writeText(value);
      };
 
+
+     console.log(domain.dns?.routing);
      return (
           <div
                className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 px-4 py-8"
@@ -53,7 +48,6 @@ export default function VerifyDomainModal({
                }}
           >
                <div className="w-full max-w-lg rounded-lg border border-navB bg-dashBg p-5 shadow-xl">
-                    {/* Header */}
                     <div className="flex items-center justify-between">
                          <div>
                               <h2 className="text-lg font-semibold dash-dashText">
@@ -77,7 +71,6 @@ export default function VerifyDomainModal({
                          </button>
                     </div>
 
-                    {/* Instructions */}
                     <div className="mt-6">
                          <p className="text-sm text-muted">
                               Add the following DNS records at your domain
@@ -89,53 +82,15 @@ export default function VerifyDomainModal({
                          </p>
                     </div>
 
-                    {/* TXT */}
-                    {domain.dns?.verification && (
-                         <div className="mt-5">
-                              <h3 className="mb-3 text-sm font-semibold dash-dashText">
-                                   1. Verification record
-                              </h3>
-
-                              <div className="rounded-lg border border-navB bg-background p-4">
-                                   <div className="grid gap-4">
-                                        <DnsValue
-                                             label="Type"
-                                             value={
-                                                  domain.dns.verification.type
-                                             }
-                                             copy={copy}
-                                        />
-
-                                        <DnsValue
-                                             label="Name"
-                                             value={
-                                                  domain.dns.verification.name
-                                             }
-                                             copy={copy}
-                                        />
-
-                                        <DnsValue
-                                             label="Value"
-                                             value={
-                                                  domain.dns.verification.value
-                                             }
-                                             copy={copy}
-                                        />
-                                   </div>
-                              </div>
-                         </div>
-                    )}
-
-                    {/* CNAME */}
                     {domain.dns?.routing && (
                          <div className="mt-5">
                               <h3 className="mb-3 text-sm font-semibold dash-dashText">
-                                   2. Routing record
+                                   Routing record
                               </h3>
 
                               <div className="rounded-lg border border-navB bg-background p-4">
                                    <div className="grid gap-4">
-                                        <DnsValue
+                                        {/* <DnsValue
                                              label="Type"
                                              value={domain.dns.routing.type}
                                              copy={copy}
@@ -151,13 +106,34 @@ export default function VerifyDomainModal({
                                              label="Value"
                                              value={domain.dns.routing.value}
                                              copy={copy}
-                                        />
+                                        /> */}
+
+                                        <div>
+                                             <p className="mb-1 text-xs text-muted">
+                                                  {label}
+                                             </p>
+
+                                             <div className="flex items-center gap-2 rounded border border-navB px-3 py-2">
+                                                  <code className="min-w-0 flex-1 truncate text-xs dash-dashText">
+                                                       {value}
+                                                  </code>
+
+                                                  <button
+                                                       type="button"
+                                                       onClick={() =>
+                                                            copy(value)
+                                                       }
+                                                       className="shrink-0 rounded p-1.5 text-muted transition hover:bg-navB"
+                                                  >
+                                                       <FiCopy size={14} />
+                                                  </button>
+                                             </div>
+                                        </div>
                                    </div>
                               </div>
                          </div>
                     )}
 
-                    {/* Footer */}
                     <div className="mt-6 flex justify-end gap-2">
                          <button
                               type="button"

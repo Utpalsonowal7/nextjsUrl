@@ -7,12 +7,14 @@ type AddDomainModalProps = {
      isOpen: boolean;
      onClose: () => void;
      onAdd: (domain: string) => void | Promise<void>;
+     isCreating: boolean;
 };
 
 export default function AddDomainModal({
      isOpen,
      onClose,
      onAdd,
+     isCreating,
 }: AddDomainModalProps) {
      const [domain, setDomain] = useState("");
 
@@ -92,9 +94,12 @@ export default function AddDomainModal({
 
                               <button
                                    type="submit"
-                                   disabled={!domain.trim()}
-                                   className="rounded bg-[#c41e3a] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                   disabled={!domain.trim() || isCreating}
+                                   className="flex items-center justify-center gap-2 rounded bg-[#c41e3a] px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                               >
+                                   {isCreating && (
+                                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                   )}
                                    Add domain
                               </button>
                          </div>

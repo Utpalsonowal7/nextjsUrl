@@ -19,11 +19,6 @@ type Domain = {
      updatedAt?: string;
 
      dns?: {
-          verification: {
-               type: string;
-               name: string;
-               value: string;
-          };
           routing: {
                type: string;
                name: string;
@@ -45,30 +40,29 @@ function Domains() {
      const [domains, setDomains] = useState<Domain[]>([]);
      const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
 
-     const getDomains = async () => {
-          try {
-               setLoading(true);
-               setErr("");
-
-               const res = await api.get("/domain");
-
-               console.log("Domains:", res.data.data);
-
-               setDomains(res.data.data.domains);
-          } catch (error) {
-               const e = error as AxiosError<{ message?: string }>;
-
-               setErr(e.response?.data?.message || "Failed to load domains");
-          } finally {
-               setLoading(false);
-          }
-     };
-
      useEffect(() => {
+          const getDomains = async () => {
+               try {
+                    setLoading(true);
+                    setErr("");
+
+                    const res = await api.get("/domain");
+
+                    setDomains(res.data.data.domains.domainFormat);
+               } catch (error) {
+                    const e = error as AxiosError<{ message?: string }>;
+
+                    setErr(
+                         e.response?.data?.message || "Failed to load domains",
+                    );
+               } finally {
+                    setLoading(false);
+               }
+          };
+
           getDomains();
      }, []);
 
-     console.log(domains)
      const handleAddDomain = async (domain: string) => {
           try {
                setAdding(true);
@@ -81,23 +75,14 @@ function Domains() {
                console.log("Domain created:", res.data);
 
                const newDomain = res.data.data;
-               console.log(newDomain)
-               /*
-                * Add newly created domain to the list
-                */
+               console.log(newDomain);
+
                setDomains((prev) => [newDomain, ...prev]);
 
-               /*
-                * Save newly created domain
-                * so we can show DNS instructions
-                */
                setSelectedDomain(newDomain);
 
                setOpen(false);
 
-               /*
-                * Open DNS verification modal
-                */
                setVerifyOpen(true);
           } catch (error) {
                const e = error as AxiosError<{ message?: string }>;
@@ -108,17 +93,11 @@ function Domains() {
           }
      };
 
-     /*
-      * Open verification modal
-      */
      const handleVerifyClick = (domain: Domain) => {
           setSelectedDomain(domain);
           setVerifyOpen(true);
      };
 
-     /*
-      * Verify domain
-      */
      const handleVerifyDomain = async () => {
           if (!selectedDomain) return;
 
@@ -172,18 +151,18 @@ function Domains() {
           domain.domain.toLowerCase().includes(search.toLowerCase()),
      );
 
-     console.log(selectedDomain)
+    
      return (
           <>
                <div className="mb-3 flex flex-col gap-6 px-3 md:px-16">
-                    {/* Error */}
+                    
                     {err && (
                          <div className="rounded border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
                               {err}
                          </div>
                     )}
 
-                    {/* Header */}
+                    
                     <div className="flex flex-col gap-5 border-b border-navB py-6">
                          <div className="flex items-center justify-between gap-4">
                               <h4 className="text-2xl font-bold dash-dashText">
@@ -207,7 +186,7 @@ function Domains() {
                               links.
                          </p>
 
-                         {/* Search */}
+                         
                          <div className="grid grid-cols-1 md:grid-cols-2">
                               <div className="bg-dashBg">
                                    <form
@@ -237,7 +216,7 @@ function Domains() {
                          </div>
                     </div>
 
-                    {/* Domain List */}
+                  
                     {loading ? (
                          <LinksListSkeleton count={4} />
                     ) : filteredDomains.length > 0 ? (
@@ -288,7 +267,7 @@ function Domains() {
                                              </div>
                                         </div>
 
-                                        {/* Action */}
+                                     
                                         <div className="shrink-0">
                                              {domain.isVerified ? (
                                                   <button
@@ -315,7 +294,7 @@ function Domains() {
                               ))}
                          </div>
                     ) : (
-                         /* Empty state */
+                      
                          <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border border-dashed border-navB text-center">
                               <div className="text-4xl">🌐</div>
 
@@ -341,11 +320,11 @@ function Domains() {
                     )}
                </div>
 
-            
                <AddDomainModal
                     isOpen={open}
                     onClose={() => setOpen(false)}
                     onAdd={handleAddDomain}
+                    isCreating={adding}
                />
 
                {selectedDomain && (
