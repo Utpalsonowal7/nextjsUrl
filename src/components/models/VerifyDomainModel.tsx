@@ -36,8 +36,6 @@ export default function VerifyDomainModal({
           await navigator.clipboard.writeText(value);
      };
 
-
-     console.log(domain.dns?.routing);
      return (
           <div
                className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 px-4 py-8"
@@ -90,45 +88,35 @@ export default function VerifyDomainModal({
 
                               <div className="rounded-lg border border-navB bg-background p-4">
                                    <div className="grid gap-4">
-                                        {/* <DnsValue
-                                             label="Type"
-                                             value={domain.dns.routing.type}
-                                             copy={copy}
-                                        />
+                                        {Object.entries(domain.dns.routing).map(
+                                             ([key, value]) => (
+                                                  <div key={key}>
+                                                       <p className="mb-1 text-xs text-muted">
+                                                            {key}
+                                                       </p>
 
-                                        <DnsValue
-                                             label="Name"
-                                             value={domain.dns.routing.name}
-                                             copy={copy}
-                                        />
+                                                       <div className="flex items-center gap-2 rounded border border-navB px-3 py-2">
+                                                            <code className="min-w-0 flex-1 truncate text-xs dash-dashText">
+                                                                 {value}
+                                                            </code>
 
-                                        <DnsValue
-                                             label="Value"
-                                             value={domain.dns.routing.value}
-                                             copy={copy}
-                                        /> */}
-
-                                        <div>
-                                             <p className="mb-1 text-xs text-muted">
-                                                  {label}
-                                             </p>
-
-                                             <div className="flex items-center gap-2 rounded border border-navB px-3 py-2">
-                                                  <code className="min-w-0 flex-1 truncate text-xs dash-dashText">
-                                                       {value}
-                                                  </code>
-
-                                                  <button
-                                                       type="button"
-                                                       onClick={() =>
-                                                            copy(value)
-                                                       }
-                                                       className="shrink-0 rounded p-1.5 text-muted transition hover:bg-navB"
-                                                  >
-                                                       <FiCopy size={14} />
-                                                  </button>
-                                             </div>
-                                        </div>
+                                                            <button
+                                                                 type="button"
+                                                                 onClick={() =>
+                                                                      copy(
+                                                                           value,
+                                                                      )
+                                                                 }
+                                                                 className="shrink-0 rounded p-1.5 text-muted transition hover:bg-navB"
+                                                            >
+                                                                 <FiCopy
+                                                                      size={14}
+                                                                 />
+                                                            </button>
+                                                       </div>
+                                                  </div>
+                                             ),
+                                        )}
                                    </div>
                               </div>
                          </div>
@@ -151,37 +139,6 @@ export default function VerifyDomainModal({
                               Verify Domain
                          </button>
                     </div>
-               </div>
-          </div>
-     );
-}
-
-
-function DnsValue({
-     label,
-     value,
-     copy,
-}: {
-     label: string;
-     value: string;
-     copy: (value: string) => void;
-}) {
-     return (
-          <div>
-               <p className="mb-1 text-xs text-muted">{label}</p>
-
-               <div className="flex items-center gap-2 rounded border border-navB px-3 py-2">
-                    <code className="min-w-0 flex-1 truncate text-xs dash-dashText">
-                         {value}
-                    </code>
-
-                    <button
-                         type="button"
-                         onClick={() => copy(value)}
-                         className="shrink-0 rounded p-1.5 text-muted transition hover:bg-navB"
-                    >
-                         <FiCopy size={14} />
-                    </button>
                </div>
           </div>
      );
