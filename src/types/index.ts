@@ -8,6 +8,12 @@ export interface PostLink {
      tags?: string[];
      customCode?: string;
      pass?: string;
+
+     utmSource?: string;
+     utmMedium?: string;
+     utmCampaign?: string;
+     utmTerm?: string;
+     utmContent?: string;
 }
 
 export interface ShortLink {

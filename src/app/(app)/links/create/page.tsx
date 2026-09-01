@@ -19,8 +19,14 @@ function CreateLink() {
           title: "",
           tags: [],
           customCode: "",
+          utmSource: "",
+          utmMedium: "",
+          utmCampaign: "",
+          utmTerm: "",
+          utmContent: "",
      });
 
+     const [showAdvanced, setShowAdvanced] = useState(false);
      const [urlError, setUrlError] = useState<string>("");
      const [submitting, setSubmitting] = useState<boolean>(false);
      const [showModal, setShowModal] = useState<boolean>(false);
@@ -103,7 +109,7 @@ function CreateLink() {
 
           const payload = {
                ...form,
-               title: form.title?.trim() ||  undefined,
+               title: form.title?.trim() || undefined,
                customCode: form.customCode?.trim() || undefined,
                tags,
           };
@@ -113,15 +119,16 @@ function CreateLink() {
                     "/links",
                     payload,
                );
-             
+
                setShortLink(data.data);
                setShowModal(true);
           } catch (err) {
                const e = err as AxiosError<{ message?: string }>;
-               console.log(e.response?.data.message)
-                              
-               setUrlError( e.response?.data?.message ||
-                    "Something went wrong creating your link. Please try again.",
+               console.log(e.response?.data.message);
+
+               setUrlError(
+                    e.response?.data?.message ||
+                         "Something went wrong creating your link. Please try again.",
                );
           } finally {
                setSubmitting(false);
@@ -308,6 +315,194 @@ function CreateLink() {
                                         </p>
                                    )}
                               </section>
+                         </section>
+
+                         <section className="bg-dashBg w-[98%]  px-4 rounded-sm flex flex-col gap-8">
+                              <button
+                                   type="button"
+                                   onClick={() =>
+                                        setShowAdvanced((prev) => !prev)
+                                   }
+                                   className="w-full flex items-center justify-between px-4 py-4 text-left hover:bg-navB/30 transition"
+                              >
+                                   <div>
+                                        <p className="text-text text-sm font-extrabold">
+                                             Advanced options
+                                        </p>
+
+                                        <p className="text-muted text-xs mt-1">
+                                             Add UTM parameters for campaign
+                                             tracking
+                                        </p>
+                                   </div>
+
+                                   <span
+                                        className={`text-sm transition-transform ${
+                                             showAdvanced ? "rotate-180" : ""
+                                        }`}
+                                   >
+                                        ▼
+                                   </span>
+                              </button>
+
+                              {showAdvanced && (
+                                   <div className="border-t border-navB p-4 md:p-5 flex flex-col gap-5">
+                                        <div>
+                                             <p className="text-text text-sm font-bold">
+                                                  Campaign tracking
+                                             </p>
+
+                                             <p className="text-muted text-xs mt-1">
+                                                  Track where visitors are
+                                                  coming from using UTM
+                                                  parameters.
+                                             </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                             {/* Source */}
+                                             <div>
+                                                  <label
+                                                       htmlFor="utmSource"
+                                                       className="text-text text-xs font-extrabold"
+                                                  >
+                                                       UTM SOURCE
+                                                  </label>
+
+                                                  <input
+                                                       id="utmSource"
+                                                       name="utmSource"
+                                                       type="text"
+                                                       value={
+                                                            form.utmSource ?? ""
+                                                       }
+                                                       onChange={handleChange}
+                                                       placeholder="linkedin"
+                                                       maxLength={100}
+                                                       className="w-full border border-navB rounded-sm py-2.5 px-4 mt-2 outline-none focus:shadow2 text-input text-sm font-medium"
+                                                  />
+
+                                                  <p className="text-muted text-xs mt-1">
+                                                       Where the traffic comes
+                                                       from
+                                                  </p>
+                                             </div>
+
+                                             {/* Medium */}
+                                             <div>
+                                                  <label
+                                                       htmlFor="utmMedium"
+                                                       className="text-text text-xs font-extrabold"
+                                                  >
+                                                       UTM MEDIUM
+                                                  </label>
+
+                                                  <input
+                                                       id="utmMedium"
+                                                       name="utmMedium"
+                                                       type="text"
+                                                       value={
+                                                            form.utmMedium ?? ""
+                                                       }
+                                                       onChange={handleChange}
+                                                       placeholder="social"
+                                                       maxLength={100}
+                                                       className="w-full border border-navB rounded-sm py-2.5 px-4 mt-2 outline-none focus:shadow2 text-input text-sm font-medium"
+                                                  />
+
+                                                  <p className="text-muted text-xs mt-1">
+                                                       Marketing channel
+                                                  </p>
+                                             </div>
+
+                                             {/* Campaign */}
+                                             <div>
+                                                  <label
+                                                       htmlFor="utmCampaign"
+                                                       className="text-text text-xs font-extrabold"
+                                                  >
+                                                       UTM CAMPAIGN
+                                                  </label>
+
+                                                  <input
+                                                       id="utmCampaign"
+                                                       name="utmCampaign"
+                                                       type="text"
+                                                       value={
+                                                            form.utmCampaign ??
+                                                            ""
+                                                       }
+                                                       onChange={handleChange}
+                                                       placeholder="summer_sale"
+                                                       maxLength={150}
+                                                       className="w-full border border-navB rounded-sm py-2.5 px-4 mt-2 outline-none focus:shadow2 text-input text-sm font-medium"
+                                                  />
+
+                                                  <p className="text-muted text-xs mt-1">
+                                                       Name of your marketing
+                                                       campaign
+                                                  </p>
+                                             </div>
+
+                                             {/* Term */}
+                                             <div>
+                                                  <label
+                                                       htmlFor="utmTerm"
+                                                       className="text-text text-xs font-extrabold"
+                                                  >
+                                                       UTM TERM
+                                                  </label>
+
+                                                  <input
+                                                       id="utmTerm"
+                                                       name="utmTerm"
+                                                       type="text"
+                                                       value={
+                                                            form.utmTerm ?? ""
+                                                       }
+                                                       onChange={handleChange}
+                                                       placeholder="frontend_developer"
+                                                       maxLength={150}
+                                                       className="w-full border border-navB rounded-sm py-2.5 px-4 mt-2 outline-none focus:shadow2 text-input text-sm font-medium"
+                                                  />
+
+                                                  <p className="text-muted text-xs mt-1">
+                                                       Usually used for paid
+                                                       search keywords
+                                                  </p>
+                                             </div>
+
+                                             {/* Content */}
+                                             <div className="md:col-span-2">
+                                                  <label
+                                                       htmlFor="utmContent"
+                                                       className="text-text text-xs font-extrabold"
+                                                  >
+                                                       UTM CONTENT
+                                                  </label>
+
+                                                  <input
+                                                       id="utmContent"
+                                                       name="utmContent"
+                                                       type="text"
+                                                       value={
+                                                            form.utmContent ??
+                                                            ""
+                                                       }
+                                                       onChange={handleChange}
+                                                       placeholder="profile_button"
+                                                       maxLength={150}
+                                                       className="w-full border border-navB rounded-sm py-2.5 px-4 mt-2 outline-none focus:shadow2 text-input text-sm font-medium"
+                                                  />
+
+                                                  <p className="text-muted text-xs mt-1">
+                                                       Used to distinguish
+                                                       different links or ads
+                                                  </p>
+                                             </div>
+                                        </div>
+                                   </div>
+                              )}
                          </section>
 
                          <div className="w-full flex justify-between sticky mt-4  bottom-1.5 md:bottom-3 bg-dashBg py-3 items-center rounded-xl px-4 md:px-8  shadow3">
