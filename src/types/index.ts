@@ -14,6 +14,9 @@ export interface PostLink {
      utmCampaign?: string;
      utmTerm?: string;
      utmContent?: string;
+
+     expiresAt?: string;
+     password?: string;
 }
 
 export interface ShortLink {
