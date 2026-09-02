@@ -157,13 +157,14 @@ function CreateLink() {
                title: form.title?.trim() || undefined,
                customCode: form.customCode?.trim() || undefined,
                tags,
-               expiresAt: enableExpiration
-                    ? form.expiresAt
-                    : undefined,
-               password: enablePassword
-                    ? form.password?.trim()
-                    : undefined,
+               expiresAt:
+                    enableExpiration && form.expiresAt
+                         ? new Date(form.expiresAt).toISOString()
+                         : undefined,
+               password: enablePassword ? form.password?.trim() : undefined,
           };
+
+          console.log(payload)
 
           try {
                const { data } = await api.post<ApiResponse<ShortLink>>(
