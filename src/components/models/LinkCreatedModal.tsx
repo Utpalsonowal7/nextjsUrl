@@ -98,7 +98,7 @@ export default function LinkCreatedModal({ open, onClose, link }: Props) {
                     <div className="mt-4 flex flex-col gap-2">
                          <button
                               onClick={onClose}
-                              className="py-2 text-sm text-muted transition hover:text-foreground"
+                              className="py-2 text-sm text-muted transition hover:text-foreground cursor-pointer"
                          >
                               Create Another Link
                          </button>
