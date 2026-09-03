@@ -19,7 +19,7 @@ import { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setLinks } from "@/lib/features/link/linkSlice";
 import type { AppDispatch, RootState } from "@/lib/store";
-
+import useDebounce from "@/hooks/useDebounce";
 
 function Links() {
      const [loading, setLoading] = useState<boolean>(false);
@@ -31,7 +31,10 @@ function Links() {
 
      const links = useSelector((state: RootState) => state.link.links);
 
+     const debounce = useDebounce(search)
+
      useEffect(() => {
+          console.log("calling")
           const controller = new AbortController();
 
           const loadState = async () => {
@@ -42,6 +45,9 @@ function Links() {
                     const res = await api.get<
                          ApiResponse<{ links: { links: userLinks[] } }>
                     >("/links/user-links", {
+                         params: {
+                              q: debounce || undefined,
+                         },
                          signal: controller.signal,
                     });
 
@@ -77,14 +83,7 @@ function Links() {
                clearTimeout(timer);
                controller.abort();
           };
-     }, [dispatch]);
-
-     // const allLinks: LinkProps[] = links.map((l) => ({
-     //      link: l,
-     //      image: getLogo(l.longUrl),
-     // }));
-
-     // dispatch(setLinks(allLinks));
+     }, [dispatch, debounce]);
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
