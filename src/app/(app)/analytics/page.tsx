@@ -26,6 +26,7 @@ import { LinksListSkeleton } from "@/components/Skeleton/LinkSkeleton";
 import CardSkeleton from "@/components/Skeleton/CardSkeleton";
 import ClicksTrendSkeleton from "@/components/Skeleton/ClicksSkeleton";
 import { getCountryColor } from "@/utils/ColorPicker";
+// import DownloadExcel from "@/utils/DownloadExcel";
 
 export default function Analytics() {
      const [range, setRange] = useState<"7" | "30" | "0">("7");
@@ -156,10 +157,14 @@ export default function Analytics() {
                          <h4 className="font-bold text-2xl dash-dashText">
                               Analytics
                          </h4>
-                         <button className="bg-[#c41e3a] text-white font-medium py-2 px-2.5 rounded flex gap-1">
+                         {/* <button className="bg-[#c41e3a] text-white font-medium py-2 px-2.5 rounded flex gap-1">
                               <FiDownload className="font-bold w-4 h-5" />
                               <span>Download Excel</span>
-                         </button>
+                         </button> */}
+                         {/* <DownloadExcel
+                              analytics={analytics}
+                              range={range}
+                         /> */}
                     </div>
                     <div className="w-[50%] md:w-[20%] border py-2.5 px-2 md:px-4 bg-dashBg border-navB rounded shadow-xs">
                          <div className="flex items-center gap-2 cursor-pointer">
