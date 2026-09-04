@@ -31,10 +31,10 @@ function Links() {
 
      const links = useSelector((state: RootState) => state.link.links);
 
-     const debounce = useDebounce(search)
+     const debounce = useDebounce(search);
 
      useEffect(() => {
-          console.log("calling")
+          
           const controller = new AbortController();
 
           const loadState = async () => {
@@ -69,7 +69,7 @@ function Links() {
                          return;
                     }
 
-                    setErr(e.response?.data?.message || "Failed to load links");
+                    setErr("Failed to load links");
                } finally {
                     setLoading(false);
                }
@@ -87,11 +87,6 @@ function Links() {
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
-               {err && (
-                    <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
-                         {err}
-                    </div>
-               )}
                <div className="flex flex-col gap-5 py-6 border-b border-navB">
                     <div className="flex items-center justify-between">
                          <h4 className="font-bold text-2xl dash-dashText">
@@ -137,6 +132,18 @@ function Links() {
                          </div>
                     </div>
                </div>
+
+               {err && (
+                    <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                         {err}
+                    </div>
+               )}
+
+               {links.length <= 0 && (
+                    <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
+                         Not Found
+                    </div>
+               )}
 
                {loading ? (
                     <LinksListSkeleton count={4} />
