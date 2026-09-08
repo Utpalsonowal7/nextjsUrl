@@ -25,6 +25,8 @@ function Links() {
      const [loading, setLoading] = useState<boolean>(false);
      const [search, setSearch] = useState<string | null>("");
      // const [links, setLinks] = useState<userLinks[]>([]);
+     const [cursor, setCursor] = useState<number | null>(null);
+     const [hasMore, setHasMore] = useState<boolean>(true);
      const [err, setErr] = useState<string>("");
 
      const dispatch = useDispatch<AppDispatch>();
@@ -34,7 +36,6 @@ function Links() {
      const debounce = useDebounce(search);
 
      useEffect(() => {
-          
           const controller = new AbortController();
 
           const loadState = async () => {
@@ -43,13 +44,25 @@ function Links() {
 
                try {
                     const res = await api.get<
-                         ApiResponse<{ links: { links: userLinks[] } }>
+                         ApiResponse<{
+                              links: {
+                                   links: userLinks[];
+                                   pagination: {
+                                        hasNextPage: boolean;
+                                        nextCursor: number | null;
+                                   };
+                              };
+                         }>
                     >("/links/user-links", {
                          params: {
                               q: debounce || undefined,
+                              cursor: cursor || undefined,
                          },
                          signal: controller.signal,
                     });
+
+                    setCursor(res.data.data.links.pagination.nextCursor);
+                    setHasMore(res.data.data.links.pagination.hasNextPage);
 
                     const userLinks = res.data.data.links.links;
 
@@ -84,6 +97,60 @@ function Links() {
                controller.abort();
           };
      }, [dispatch, debounce]);
+
+      const loadMore = async () => {
+        
+           if (loading || !hasMore || cursor === null) {
+                return;
+           }
+
+           setErr("");
+           setLoading(true);
+
+           try {
+                const res = await api.get<
+                     ApiResponse<{
+                          links: {
+                               links: userLinks[];
+                               pagination: {
+                                    hasNextPage: boolean;
+                                    nextCursor: number | null;
+                               };
+                          };
+                     }>
+                >("/links/user-links", {
+                     params: {
+                          q: debounce || undefined,
+                          cursor: cursor,
+                     },
+                });
+
+                const newUserLinks = res.data.data.links.links;
+
+                const newLinks: LinkProps[] = newUserLinks.map((l) => ({
+                     link: l,
+                     image: getLogo(l.longUrl),
+                }));
+
+                dispatch(setLinks([...links, ...newLinks]));
+
+                setCursor(res.data.data.links.pagination.nextCursor);
+
+                setHasMore(res.data.data.links.pagination.hasNextPage);
+           } catch (err) {
+                const e = err as AxiosError<{
+                     message?: string;
+                }>;
+
+                if (e.code === "ERR_CANCELED" || e.name === "CanceledError") {
+                     return;
+                }
+
+                setErr("Failed to load more links");
+           } finally {
+                setLoading(false);
+           }
+      };
 
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
@@ -158,6 +225,17 @@ function Links() {
                                    />
                               );
                          })}
+
+                         {hasMore && links.length > 0 && (
+                              <button
+                                   type="button"
+                                   onClick={loadMore}
+                                   disabled={loading}
+                                   className="mx-auto bg-[#c41e3a] text-white font-medium py-2 px-5 rounded disabled:opacity-50"
+                              >
+                                   {loading ? "Loading..." : "Load More"}
+                              </button>
+                         )}
                     </div>
                )}
           </div>
