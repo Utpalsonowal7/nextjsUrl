@@ -206,7 +206,7 @@ function Links() {
                     </div>
                )}
 
-               {links.length <= 0 && (
+               {!err && links.length <= 0 && (
                     <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
                          Not Found
                     </div>
