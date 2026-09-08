@@ -27,6 +27,7 @@ function Links() {
      // const [links, setLinks] = useState<userLinks[]>([]);
      const [cursor, setCursor] = useState<number | null>(null);
      const [hasMore, setHasMore] = useState<boolean>(true);
+     const [loadingMore, setLoadingMore] = useState<boolean>(false);
      const [err, setErr] = useState<string>("");
 
      const dispatch = useDispatch<AppDispatch>();
@@ -61,6 +62,7 @@ function Links() {
                          signal: controller.signal,
                     });
 
+                    console.log(res);
                     setCursor(res.data.data.links.pagination.nextCursor);
                     setHasMore(res.data.data.links.pagination.hasNextPage);
 
@@ -98,60 +100,58 @@ function Links() {
           };
      }, [dispatch, debounce]);
 
-      const loadMore = async () => {
-        
-           if (loading || !hasMore || cursor === null) {
-                return;
-           }
+     const loadMore = async () => {
+          if (loading || loadingMore || !hasMore || cursor === null) {
+               return;
+          }
 
-           setErr("");
-           setLoading(true);
+          setErr("");
+          setLoadingMore(true);
 
-           try {
-                const res = await api.get<
-                     ApiResponse<{
-                          links: {
-                               links: userLinks[];
-                               pagination: {
-                                    hasNextPage: boolean;
-                                    nextCursor: number | null;
-                               };
-                          };
-                     }>
-                >("/links/user-links", {
-                     params: {
-                          q: debounce || undefined,
-                          cursor: cursor,
-                     },
-                });
+          try {
+               const res = await api.get<
+                    ApiResponse<{
+                         links: {
+                              links: userLinks[];
+                              pagination: {
+                                   hasNextPage: boolean;
+                                   nextCursor: number | null;
+                              };
+                         };
+                    }>
+               >("/links/user-links", {
+                    params: {
+                         q: debounce || undefined,
+                         cursor: cursor,
+                    },
+               });
 
-                const newUserLinks = res.data.data.links.links;
+               const newUserLinks = res.data.data.links.links;
 
-                const newLinks: LinkProps[] = newUserLinks.map((l) => ({
-                     link: l,
-                     image: getLogo(l.longUrl),
-                }));
+               const newLinks: LinkProps[] = newUserLinks.map((l) => ({
+                    link: l,
+                    image: getLogo(l.longUrl),
+               }));
 
-                dispatch(setLinks([...links, ...newLinks]));
+               dispatch(setLinks([...links, ...newLinks]));
 
-                setCursor(res.data.data.links.pagination.nextCursor);
+               setCursor(res.data.data.links.pagination.nextCursor);
 
-                setHasMore(res.data.data.links.pagination.hasNextPage);
-           } catch (err) {
-                const e = err as AxiosError<{
-                     message?: string;
-                }>;
+               setHasMore(res.data.data.links.pagination.hasNextPage);
+          } catch (err) {
+               const e = err as AxiosError<{
+                    message?: string;
+               }>;
 
-                if (e.code === "ERR_CANCELED" || e.name === "CanceledError") {
-                     return;
-                }
+               if (e.code === "ERR_CANCELED" || e.name === "CanceledError") {
+                    return;
+               }
 
-                setErr("Failed to load more links");
-           } finally {
-                setLoading(false);
-           }
-      };
-
+               setErr("Failed to load more links");
+          } finally {
+               setLoadingMore(false);
+          }
+     };
      return (
           <div className="flex flex-col  gap-6 px-3 md:px-16 mb-3">
                <div className="flex flex-col gap-5 py-6 border-b border-navB">
@@ -206,7 +206,7 @@ function Links() {
                     </div>
                )}
 
-               {!err && links.length <= 0 && (
+               {!err && !loading && links.length <= 0 && (
                     <div className="max-w-100 mx-auto text-2xl text-[#3a24a1] uppercase">
                          Not Found
                     </div>
@@ -231,7 +231,7 @@ function Links() {
                                    type="button"
                                    onClick={loadMore}
                                    disabled={loading}
-                                   className="mx-auto bg-[#c41e3a] text-white font-medium py-2 px-5 rounded disabled:opacity-50"
+                                   className="mx-auto bg-[#c41e3a] text-white font-medium py-2 px-5 rounded disabled:opacity-50 cursor-pointer"
                               >
                                    {loading ? "Loading..." : "Load More"}
                               </button>
