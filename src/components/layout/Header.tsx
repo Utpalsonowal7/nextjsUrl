@@ -1,119 +1,33 @@
 "use client";
-
-import {
-     RiMenu2Fill,
-     RiCloseFill,
-     RiArrowDropDownFill,
-     RiArrowDropUpFill,
-} from "react-icons/ri";
-import { useState } from "react";
+import { Menu, X, ChevronDown, Plus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Theme from "../theme";
-import Sidebar from "./Sidebar";
+import Sidebar, { navItems } from "./Sidebar";
 import UserInfoModel from "../ui/UserInfoModel";
 import { currentUser } from "@/lib/features/auth/authSlice";
 import { useAppSelector } from "@/lib/hooks";
-
-// const userOffine = {
-//      name: "Utpal Sonowal",
-//      email: "sonowalu73@gmail.com",
-// };
-
-type HeaderProps = {
-     onCreate: () => void;
-};
-
-function Header({onCreate}:HeaderProps) {
-     const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
-     const [isUserModelOpen, setIsUserModelOpen] = useState<boolean>(false);
-
-     const user = useAppSelector(currentUser)
-
-     // if (!user) {
-     //      return <div className="h-16 border-b border-navB animate-pulse" />;
-     // }
-     
-     const name = user?.name ?? "Guest";
-
-     return (
-          <>
-               <div
-                    className=" border-b z-20 fixed top-0 right-0 left-0 md:left-62.5 px-3.5  border-navB lg:px-6
-          backdrop-blur-2xl bg-background/50"
-               >
-                    <div
-                         className="w-full flex items-center justify-between py-3
-               lg:flex-row-reverse"
-                    >
-                         <div className="flex items-center gap-6 md:hidden">
-                              {isSideBarOpen ? (
-                                   <RiCloseFill
-                                        onClick={() =>
-                                             setIsSideBarOpen((pre) => !pre)
-                                        }
-                                        size={35}
-                                   />
-                              ) : (
-                                   <RiMenu2Fill
-                                        onClick={() =>
-                                             setIsSideBarOpen((pre) => !pre)
-                                        }
-                                        size={30}
-                                   />
-                              )}
-
-                              <h2 className="flex  text-white py-1 px-2 rounded bg-[#c41e3a]">
-                                   LnkShrt
-                              </h2>
-                         </div>
-
-                         <div className="flex items-center gap-3">
-                              <div className="mt-1.5">
-                                   <Theme />
-                              </div>
-                              <div
-                                   className="flex items-center gap-2 cursor-pointer hover:bg-[#f8bbb5] py-1 px-1 rounded"
-                                   onClick={() =>
-                                        setIsUserModelOpen((pre) => !pre)
-                                   }
-                              >
-                                   <div>
-                                        <button className="font-medium h-8 w-8 text-center text-xl bg-[#c43a21] text-white rounded-full">
-                                             {name
-                                                  .slice(0, 1)
-                                                  .toLocaleUpperCase()}
-                                        </button>
-                                   </div>
-                                   <div>
-                                        <span>{name.split(" ")[0]}</span>
-                                   </div>
-                                   <div>
-                                        {isUserModelOpen ? <RiArrowDropUpFill /> : <RiArrowDropDownFill />}
-                                   </div>
-                              </div>
-                         </div>
-                    </div>
-
-                    <div className="w-full">
-                         {isSideBarOpen && (
-                              <div onClick={()=>setIsSideBarOpen(pre=>!pre)}>
-                                   <Sidebar onCreate={onCreate} />
-                              </div>
-                         )}
-                    </div>
-               </div>
-
-               <UserInfoModel
-                    isOpen={isUserModelOpen}
-                    logo={name
-                         .split(" ")
-                         .map((word:string) => word[0])
-                         .join("")
-                         .toUpperCase()}
-                    name={name}
-                    email={user?.email ?? ""}
-               />
-          </>
-     );
+export default function Header({ onCreate }: { onCreate: () => void }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const user = useAppSelector(currentUser);
+  const pathname = usePathname();
+  const title = navItems.find(item => pathname === item.href || pathname.startsWith(item.href + "/"))?.name || "Settings";
+  useEffect(() => {
+    if (mobileOpen) { dialog.current?.showModal(); const prior = document.body.style.overflow; document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = prior; }; }
+    dialog.current?.close();
+  }, [mobileOpen]);
+  function closeMenu() { setMobileOpen(false); menuButton.current?.focus(); }
+  return <>
+    <div className="fixed inset-x-0 top-0 z-30 flex h-18 items-center justify-between gap-3 border-b border-navB bg-dashBg/95 px-4 backdrop-blur-xl md:left-62.5 md:px-8">
+      <div className="flex items-center gap-3"><button ref={menuButton} aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)} className="rounded-lg p-2 hover:bg-cardBg md:hidden"><Menu className="size-5" /></button><p className="text-sm text-muted"><span className="hidden sm:inline">Workspace <span className="mx-2 opacity-40">/</span></span><span className="font-medium text-foreground">{title}</span></p></div>
+      <div className="flex items-center gap-3"><button onClick={onCreate} aria-label="Create new" className="rounded-xl border border-navB p-2.5 hover:bg-cardBg"><Plus className="size-4" /></button><Theme /><button aria-expanded={userOpen} aria-label="Account menu" onClick={() => setUserOpen(!userOpen)} className="flex items-center gap-2 rounded-xl p-1.5 hover:bg-cardBg"><span className="flex size-9 items-center justify-center rounded-full bg-rose-100 text-sm font-semibold text-rose-800">{(user?.name || "U").slice(0, 1).toUpperCase()}</span><span className="hidden text-sm font-medium sm:block">{user?.name?.split(" ")[0] || "Your account"}</span><ChevronDown className="size-4 text-muted" /></button></div>
+    </div>
+    <dialog ref={dialog} onCancel={closeMenu} onClick={event => { if (event.target === event.currentTarget) closeMenu(); }} aria-label="Navigation" className="fixed inset-0 m-0 h-dvh max-h-none w-[min(320px,90vw)] max-w-none bg-dashBg text-foreground backdrop:bg-black/40">
+      <button onClick={closeMenu} aria-label="Close navigation" className="absolute right-3 top-3 rounded-lg p-2"><X className="size-5" /></button><Sidebar onNavigate={closeMenu} onCreate={() => { closeMenu(); onCreate(); }} />
+    </dialog>
+    {userOpen && <><button aria-label="Close account menu" className="fixed inset-0 z-30 cursor-default" onClick={() => setUserOpen(false)} /><div className="relative z-40"><UserInfoModel isOpen logo={(user?.name || "U").slice(0, 1)} name={user?.name || "Your account"} email={user?.email || ""} /></div></>}
+  </>;
 }
-
-export default Header;

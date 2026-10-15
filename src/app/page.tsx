@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE_URL } from "@/api/config";
 
 import { ArrowRight, Link as LinkIcon, MoveRight } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +16,10 @@ import DonationModal from "@/components/models/DonationModal";
 import api from "@/api/axios";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { MdContentCopy } from "react-icons/md";
+
+declare global {
+  interface Window { Razorpay?: new (options: Record<string, unknown>) => { open(): void } }
+}
 
 export default function Home() {
      const [copied, setCopied] = useState<boolean>(false);
@@ -137,7 +142,7 @@ export default function Home() {
                setDonating(contributionTitle);
 
                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_BACkEND_URL}order/create-order`,
+                    `${API_BASE_URL}/order/create-order`,
                     {
                          method: "POST",
                          headers: {
@@ -164,7 +169,7 @@ export default function Home() {
 
                console.log("Donation order created:", donationOrder);
 
-               if (!(window as any).Razorpay) {
+               if (!window.Razorpay) {
                     throw new Error("Razorpay SDK is not loaded");
                }
 
@@ -215,7 +220,7 @@ export default function Home() {
                               );
 
                               const verifyResponse = await fetch(
-                                   `${process.env.NEXT_PUBLIC_BACkEND_URL}order/verify-payment`,
+                                   `${API_BASE_URL}/order/verify-payment`,
                                    {
                                         method: "POST",
 
@@ -285,7 +290,7 @@ export default function Home() {
                     },
                };
 
-               const razorpay = new (window as any).Razorpay(options);
+               const razorpay = new window.Razorpay(options);
 
                razorpay.open();
 

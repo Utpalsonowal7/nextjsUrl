@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "./config";
 import axios from "axios";
 import type {
      AxiosInstance,
@@ -6,20 +7,21 @@ import type {
 } from "axios";
 
 const api: AxiosInstance = axios.create({
-     baseURL: process.env.NEXT_PUBLIC_BACkEND_URL,
+     baseURL: API_BASE_URL,
      timeout: 30000,
      withCredentials: true,
 });
 
 const refrshEndPointApi: AxiosInstance = axios.create({
-     baseURL: process.env.NEXT_PUBLIC_BACkEND_URL,
+     baseURL: API_BASE_URL,
      withCredentials: true,
+     timeout: 15000,
 });
 
 const PUBLIC_ROUTES = ["/", "/login", "/register", "/link-expired"];
 
 const isPublicRoute = (pathname: string) => {
-     return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/temp/");
+     return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/temp/") || pathname.startsWith("/b/") || pathname === "/protectedlink";
 };
 
 interface FailedQueueResponse {
@@ -55,6 +57,7 @@ api.interceptors.response.use(
                originalRequest &&
                !originalRequest._retry
           ) {
+               originalRequest._retry = true;
                if (isRefreshing) {
                     return new Promise<void>((resolve, reject) => {
                          failedQueue.push({ resolve, reject });

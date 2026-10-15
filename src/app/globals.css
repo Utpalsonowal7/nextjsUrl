@@ -1,22 +1,25 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f5f1eb;
-  --foreground: #171717;
+  --background: #f6f7fa;
+  --foreground: #202535;
 
   --shadow: #111;
   --shadow2: #e1f5f1;
-  --text: #9E9E9E;
+  --text: #687084;
 
-  --tittle: #1a1a1a;
-  --muted: #6b6560;
+  --title: #202535;
+  --border: #e2e5ec;
+  --input: #30394a;
+  --muted: #687084;
 
   --dashText: #1a1815;
 
-  --cardBorder: #c5bfb8;
-  --cardBg: #ece6dd;
-  --navB: #e2dcd4;
-  --dashBg: #faf7f2;
+  --cardBorder: #dce1ea;
+  --cardBg: #f0f2f7;
+  --navB: #e4e7ee;
+  --dashBg: #ffffff;
 
   --linkText:#273144;
   --short:#2A5BD7;
@@ -49,7 +52,7 @@
 
 
 .dark {
-  --background: #0c0a09;
+  --background: #0d111b;
   --foreground: #ededed;
 
   --border: #696969;
@@ -62,16 +65,16 @@
   --shadow2: #9E9E9E;
   --title: #e8e2d9;
 
-  --muted: #8a8078;
+  --muted: #a2acc0;
 
-  --cardBorder: #3a3530;
-  --cardBg: #1a1714;
+  --cardBorder: #303a4d;
+  --cardBg: #1c2434;
 
   
   --dashText: #E8E2D9;
 
-  --navB: #ffffff0a;
-  --dashBg: #151311;
+  --navB: #283247;
+  --dashBg: #141b28;
 
   --linkText:#D8CEBB;
 
@@ -128,4 +131,22 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+}
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid var(--short);
+  outline-offset: 3px;
+}
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+.bio-profile { background: #faf9f6; color: #242735; }
+.bio-link { background: #ffffff; border-color: #e4e4e8; }
+.bio-profile[data-bio-theme="dark"] { background: #111827; color: #f3f4f6; }
+[data-bio-theme="dark"] .bio-link { background: #1f2937; border-color: #374151; }
+@media (prefers-color-scheme: dark) {
+  .bio-profile[data-bio-theme="system"] { background: #111827; color: #f3f4f6; }
+  [data-bio-theme="system"] .bio-link { background: #1f2937; border-color: #374151; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { currentUser } from "@/lib/features/auth/authSlice";
 import { usePathname } from "next/navigation";
 
-const PUBLIC_ONLY_ROUTES = ["/", "/login", "/signup", "/link-expired"];
+const PUBLIC_ONLY_ROUTES = ["/", "/login", "/register", "/signup", "/protectedlink", "/link-expired"];
 
 export default function AuthProvider({
      children,
@@ -20,7 +20,7 @@ export default function AuthProvider({
      useEffect(() => {
           const isPublicRoute =
                PUBLIC_ONLY_ROUTES.includes(pathname) ||
-               pathname.startsWith("/temp/");
+               pathname.startsWith("/temp/") || pathname.startsWith("/b/");
 
           if (!isPublicRoute && !user) {
                dispatch(getCurrentUser());
