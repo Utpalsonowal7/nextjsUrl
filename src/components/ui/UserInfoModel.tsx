@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { useAppDispatch } from "@/lib/hooks";
+import { clearUser } from "@/lib/features/auth/authSlice";
 
 import { GoSignOut } from "react-icons/go";
 
@@ -12,10 +14,13 @@ interface UserInfo {
 }
 
 function UserInfoModel({ isOpen, logo, name, email }: UserInfo) {
-     if (!isOpen) return;
+     const dispatch = useAppDispatch();
+     const [error, setError] = useState("");
+     if (!isOpen) return null;
 
      const handleLogOut = async () => {
-          await api.post("/auth/logout");
+          try { await api.post("/auth/logout"); dispatch(clearUser()); window.location.assign("/login"); }
+          catch { setError("Could not sign out. Please try again."); }
      };
 
      return (
@@ -31,6 +36,7 @@ function UserInfoModel({ isOpen, logo, name, email }: UserInfo) {
                          <h4>{email}</h4>
                     </div>
                </div>
+               {error && <p role="alert" className="px-5 text-sm text-red-500">{error}</p>}
                <hr className="text-navB h-1" />
 
                <div className="py-5 px-10">

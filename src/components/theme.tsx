@@ -1,36 +1,10 @@
-import React from "react";
+"use client";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { LuSunMedium, LuMoon } from "react-icons/lu";
-
-import { useState, useEffect } from "react";
-
-function Theme() {
-     const { resolvedTheme, setTheme } = useTheme();
-     const [mounted, setMounted] = useState(false);
-
-     useEffect(() => {
-          setMounted(true);
-     }, []);
-
-     if (!mounted) {
-          return (
-               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300 dark:bg-gray-600"></div>
-          );
-     }
-
-     return (
-          <div>
-               <button
-                    onClick={() =>
-                         setTheme(resolvedTheme === "dark" ? "light" : "dark")
-                    }
-                    className="cursor-pointer"
-               >
-                    {resolvedTheme === "dark" ? <LuSunMedium /> : <LuMoon />}
-               </button>
-          </div>
-     );
+const subscribe = () => () => {};
+export default function Theme() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
+  return <button aria-label="Toggle color theme" disabled={!mounted} onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} className="rounded-xl p-2.5 hover:bg-cardBg">{mounted && resolvedTheme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}</button>;
 }
-
-export default Theme;

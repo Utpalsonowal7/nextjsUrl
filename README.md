@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LnkShrt frontend
 
-## Getting Started
+Next.js 16, React 19, TypeScript, Tailwind CSS 4, Redux Toolkit, Axios, and next-themes. The existing links, QR tools, analytics, Google sign-in, donations and settings are preserved.
 
-First, run the development server:
+## Local development
 
-```bash
+Use Node 24 and npm. In PowerShell:
+
+```powershell
+npm ci
+if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Start the backend separately on port 8080 and apply its latest Prisma migrations. Configure the **backend** with `FRONTEND_URL=http://localhost:3000`, `CORS_ORIGIN=http://localhost:3000`, and the appropriate Google callback URL and credentials. Keep the same hostname (`localhost`) for frontend and backend during cookie-based local testing. The backend currently issues Secure cookies; if your browser rejects them over local HTTP, use local HTTPS rather than weakening production cookie settings.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Frontend variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_BACKEND_URL` | Browser API base, including `/api/v1`; no secrets |
+| `API_BASE_URL` | Optional server-side API base for public bio pages; defaults to the browser base |
+| `APP_HOSTS` | Optional comma-separated primary frontend hostnames; enables custom-host root rewrites |
+| `NEXT_PUBLIC_SHORT_URL` | Existing primary short-link URL used by analytics |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Existing public Razorpay checkout key |
 
-## Learn More
+The older misspelled `NEXT_PUBLIC_BACkEND_URL` remains supported as a fallback. API URLs work with or without a trailing slash. Public variables must be set **before building**. Server-side API requests need network access from the Next.js host to the backend.
 
-To learn more about Next.js, take a look at the following resources:
+## Bio pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/pages`: list, copy/view, publish/unpublish and delete your pages.
+- `/pages/new` and `/pages/:id/edit`: profile, avatar URL, up to 50 ordered links, link visibility, light/dark/system appearance, live preview and verified-domain assignment.
+- `/b/:slug`: public, server-rendered page. Drafts and deleted pages show an unavailable state; inactive links are excluded by the API. Reads use `no-store` so unpublishing takes effect immediately.
+- `/b/domain/:hostname`: public lookup for a verified custom domain.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Save explicitly to apply edits. A link-array save replaces the list in its current order; backend-generated IDs/positions are not sent back as writable fields. Failed saves keep form values. Public pages render plain text and allow only HTTP(S) links without embedded credentials. User images are loaded directly by the browser, not fetched through Next's image optimizer.
 
-## Deploy on Vercel
+## Domains and branded links
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`/domain` shows both TXT ownership and CNAME routing records. Verification calls `/domain/:id/verify` and uses the returned `isVerified`/`checks` values; a 200 response does not automatically mean verification succeeded. DNS errors, missing records and domain-in-use deletion conflicts are shown without discarding the current list.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`/links/create` offers verified domains and sends numeric `domainId`. The default domain remains available. The protected-link screen is `/protectedlink?q=<shortCode>`.
+
+## Custom-domain hosting
+
+Set `APP_HOSTS=app.example.com,www.app.example.com` to identify canonical app hosts. Requests to `/` on another Host are internally rewritten to the public domain lookup. The backend must confirm that the domain is verified and its page is published. `X-Forwarded-Host` is not used to select the page.
+
+DNS verification does not configure AWS/other hosting or TLS. The ingress must accept registered hostnames, preserve the original Host, serve Next.js assets, route bio-page roots to this frontend, and route short-code paths to the backend when using the same domain for both. The frontend and backend must be reachable over HTTPS. This PR does not deploy AWS resources or change DNS records.
+
+## Checks
+
+```sh
+npm run lint
+npm run typecheck
+npm run build
+```
+
+Browser regression tests exercise the real production frontend with a deterministic API contract fixture. They do not contact a production API or perform payments, send email, or exercise live Google OAuth/DNS. Backend persistence/DNS logic has its separate suite in the backend repository.
+
+PowerShell browser-test setup:
+
+```powershell
+$env:NEXT_PUBLIC_BACKEND_URL="http://127.0.0.1:4010/api/v1"
+$env:API_BASE_URL="http://127.0.0.1:4010/api/v1"
+npm run build
+npx playwright install chromium
+npm run test:e2e
+Remove-Item Env:NEXT_PUBLIC_BACKEND_URL
+Remove-Item Env:API_BASE_URL
+```
+
+Tests start their own frontend (port 3000) and fixture API (4010); stop other services using these ports first. Rebuild with your normal environment before deployment. GitHub Actions runs lint/type checks/build and Chromium tests, retaining screenshots, traces and reports for 14 days.

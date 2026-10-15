@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE_URL } from "@/api/config";
 
 import { FcGoogle } from "react-icons/fc";
 import { Link as LinkIcon } from "lucide-react";
@@ -6,7 +7,7 @@ import Link from "next/link";
 
 function login() {
      const handleLogin = () => {
-          window.location.href = `${process.env.NEXT_PUBLIC_BACkEND_URL}auth/google`;
+          window.location.href = `${API_BASE_URL}/auth/google`;
      }
      return (
           <div className="min-h-screen flex justify-center">

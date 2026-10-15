@@ -1,8 +1,10 @@
 
 "use client";
 
-import React, { useState } from "react";
 import { SlLock } from "react-icons/sl";
+import React, { useState, useEffect } from "react";
+import { domainApi, errorMessage } from "@/lib/bio/api";
+import type { Domain } from "@/lib/bio/types";
 import { CircleAlert, Ellipsis, Eye, EyeOff, X } from "lucide-react";
 import Link from "next/link";
 import { PostLink, ShortLink, ApiResponse } from "@/types";
@@ -11,6 +13,10 @@ import SuccessModal from "@/components/models/LinkCreatedModal";
 import { AxiosError } from "axios";
 
 function CreateLink() {
+     const [domains, setDomains] = useState<Domain[]>([]);
+     const [domainId, setDomainId] = useState("");
+     const [domainError, setDomainError] = useState("");
+     useEffect(() => { domainApi.list().then(setDomains).catch(error => setDomainError(errorMessage(error, "Custom domains could not be loaded."))); }, []);
      const [input, setInput] = useState<string>("");
      const [form, setForm] = useState<PostLink>({
           longUrl: "",
@@ -154,6 +160,7 @@ function CreateLink() {
 
           const payload = {
                ...form,
+               domainId: domainId ? Number(domainId) : undefined,
                title: form.title?.trim() || undefined,
                customCode: form.customCode?.trim() || undefined,
                tags,
@@ -164,7 +171,7 @@ function CreateLink() {
                password: enablePassword ? form.password?.trim() : undefined,
           };
 
-          console.log(payload)
+
 
           try {
                const { data } = await api.post<ApiResponse<ShortLink>>(
@@ -174,16 +181,6 @@ function CreateLink() {
 
                setShortLink(data.data);
                setShowModal(true);
-          } catch (err) {
-               const e = err as AxiosError<{ message?: string }>;
-
-               setUrlError(
-                    e.response?.data?.message ||
-                         "Something went wrong creating your link. Please try again.",
-               );
-          } finally {
-               setSubmitting(false);
-
                setForm({
                     longUrl: "",
                     title: "",
@@ -201,6 +198,17 @@ function CreateLink() {
                setEnableExpiration(false);
                setEnablePassword(false);
                setShowPassword(false);
+
+          } catch (err) {
+               const e = err as AxiosError<{ message?: string }>;
+
+               setUrlError(
+                    e.response?.data?.message ||
+                         "Something went wrong creating your link. Please try again.",
+               );
+          } finally {
+               setSubmitting(false);
+
           }
      };
 
@@ -218,7 +226,7 @@ function CreateLink() {
                          onSubmit={handleSubmit}
                          className="w-full flex flex-col items-center gap-8"
                     >
-                         <section className="bg-dashBg w-[98%] py-15 px-4 rounded-sm flex flex-col gap-8">
+                         <section className="bg-dashBg w-full border border-navB py-8 px-5 rounded-2xl flex flex-col gap-8">
                               <section>
                                    <label
                                         htmlFor="url"
@@ -266,18 +274,12 @@ function CreateLink() {
                                         </label>
 
                                         <div className="relative mt-2.5">
-                                             <input
-                                                  id="domain"
-                                                  type="text"
-                                                  value="s.utpx.in"
-                                                  className="w-full border border-navB rounded-sm py-2.5 pl-4 pr-10 outline-none focus:shadow2 text-input text-sm font-medium"
-                                                  readOnly
-                                             />
-
-                                             <SlLock
-                                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                                                  size={14}
-                                             />
+                                             <select id="domain" value={domainId} onChange={e => setDomainId(e.target.value)} className="w-full rounded-xl border border-navB bg-dashBg px-3 py-3 text-sm">
+                                                  <option value="">Default short domain</option>
+                                                  {domains.filter(domain => domain.isVerified).map(domain => <option key={domain.id} value={domain.id}>{domain.domain}</option>)}
+                                             </select>
+                                             {domainError && <p role="alert" className="mt-2 text-xs text-red-500">{domainError} You can still use the default domain.</p>}
+                                             <Link href="/domain" className="mt-2 block text-xs text-short">Manage domains</Link>
                                         </div>
                                    </div>
 

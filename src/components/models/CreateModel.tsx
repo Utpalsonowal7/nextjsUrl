@@ -57,13 +57,13 @@ export default function CreateModel({ open, onClose }: Props) {
                               </h3>
                          </Link>
 
-                         <Link href="" className="flex md:flex-col gap-3 items-center px-2 py-2 group rounded-xl border border-navB  text-left transition-all hover:-translate-y-1 hover:border-short hover:shadow md:px-3 md:py-4"  onClick={onClose}>
+                         <Link href="/pages/new" className="flex md:flex-col gap-3 items-center px-2 py-2 group rounded-xl border border-navB  text-left transition-all hover:-translate-y-1 hover:border-short hover:shadow md:px-3 md:py-4"  onClick={onClose}>
                               <div className=" flex h-5 w-5 items-center justify-center rounded-2xl ">
                                    <NotepadText className="text-[#4153e2]" />
                               </div>
 
                               <h3 className="text-[17px] font-medium  text-muted">
-                                   Build a landing Page
+                                   Build a bio page
                               </h3>
                          </Link>
                     </div>
