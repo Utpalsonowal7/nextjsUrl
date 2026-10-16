@@ -92,6 +92,7 @@ export interface userLinks {
      shortcode: string;
      title: string;
      shortUrl: string;
+     domain?: { domain: string } | null;
      longUrl: string;
      tags: string[];
 }
@@ -101,6 +102,7 @@ export interface userQrs {
      shortcode: string;
      title: string;
      shortUrl: string;
+     domain?: { domain: string } | null;
      longUrl: string;
      tags: string[];
      qrUrl: string;
@@ -305,6 +307,7 @@ export interface OverallAnalytics {
           id: number;
           desc: string | null;
           shortLink: string;
+          shortUrl?: string;
           clicks: number;
      }[];
 

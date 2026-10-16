@@ -70,10 +70,12 @@ function Link({ link, image }: LinkProps) {
                                    {link.title}
                               </LinkRoute>
                          </div>
+                         {link.domain?.domain && <span className="w-fit rounded-md bg-short/10 px-2 py-1 text-[10px] font-semibold text-short">Custom domain</span>}
                          <h5 className="font-bold text-[13px] text-foreground/80 truncate flex items-center gap-3">
                               <a
                                    href={link.shortUrl}
                                    target="_blank"
+                                   rel="noopener noreferrer"
                                    className="text-short hover:underline"
                               >
                                    {link.shortUrl?.replace(/^https?:\/\//, "")}

@@ -76,10 +76,9 @@ export default function Analytics() {
             )
           : null;
 
-     const shortUrl = `${process.env.NEXT_PUBLIC_SHORT_URL?.replace(
-          /^https?:\/\//,
-          "",
-     )}${analytics?.topLinks[0]?.shortLink}`;
+     const topLink = analytics?.topLinks[0];
+     const shortUrl = topLink?.shortUrl?.replace(/^https?:\/\//, "") ??
+          (topLink ? `${process.env.NEXT_PUBLIC_SHORT_URL?.replace(/^https?:\/\//, "").replace(/\/$/, "")}/${topLink.shortLink}` : "—");
 
      const cityTotal =
           analytics?.cities.reduce((sum, city) => sum + city.value, 0) ?? 0;

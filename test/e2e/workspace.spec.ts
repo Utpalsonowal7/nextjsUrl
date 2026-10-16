@@ -58,7 +58,7 @@ test("DNS mismatch stays unverified and deletion conflict is shown", async ({ pa
   await expect(card.getByText("_utpx-verification.pending.example.test")).toBeVisible();
   await expect(card.getByText("utpx_verify_test")).toBeVisible();
   await card.getByRole("button", { name: "Verify DNS records" }).click();
-  await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toContainText("Routing CNAME missing or incorrect");
+  await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toContainText("Routing check failed");
   await expect(card.getByText("Waiting for verification")).toBeVisible();
   page.on("dialog", dialog => dialog.accept());
   await card.getByRole("button", { name: "Remove domain" }).click();
@@ -123,4 +123,15 @@ test("protected links show password errors without entering the signed-in worksp
   await page.getByRole("button", { name: "Unlock link" }).click();
   await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toContainText("Wrong password");
   await expect(page).toHaveURL(/protectedlink/);
+});
+
+test("saved custom links retain their hostname and domain guidance permits proxies", async ({ page }) => {
+  await page.goto("/links");
+  const link = page.getByRole("link", { name: "links.example.test/branded", exact: true });
+  await expect(link).toHaveAttribute("href", "https://links.example.test/branded");
+  await expect(page.getByText("Custom domain", { exact: true })).toBeVisible();
+  await page.goto("/domain");
+  const card = page.locator("article").filter({ hasText: "links.example.test" });
+  await card.getByRole("button", { name: "DNS settings" }).click();
+  await expect(card.getByText(/Proxying is supported/)).toBeVisible();
 });
