@@ -84,3 +84,14 @@ Remove-Item Env:API_BASE_URL
 ```
 
 Tests start their own frontend (port 3000) and fixture API (4010); stop other services using these ports first. Rebuild with your normal environment before deployment. GitHub Actions runs lint/type checks/build and Chromium tests, retaining screenshots, traces and reports for 14 days.
+
+## Bio design controls
+
+The bio editor includes six color palettes, four link-button styles, ten link
+icons, and up to eight social/email icons, shared by preview and public pages.
+Existing pages without design fields render with compatible defaults. Palettes
+follow light/dark/system appearance, except Midnight which stays dark.
+
+Deploy the backend bio-design migration/API update before this frontend.
+Social changes save explicitly with the rest of the page; profile URLs must be
+HTTP(S), and email icons accept a plain email address.

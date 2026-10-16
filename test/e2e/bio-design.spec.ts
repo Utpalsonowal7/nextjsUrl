@@ -1,0 +1,52 @@
+import { expect, test } from "@playwright/test";
+const api = "http://127.0.0.1:4010";
+test.beforeEach(async ({ request }) => { await request.post(api + "/__reset"); });
+
+test("palettes, buttons, link icons, and social icons persist to the public page", async ({ page, request }) => {
+  await page.goto("/pages/new");
+  await page.getByLabel("Display name", { exact: true }).fill("Utpal Sonowal");
+  await page.getByLabel("Page address", { exact: true }).fill("utpal-design");
+  await page.getByRole("button", { name: "Add a link", exact: true }).click();
+  await page.getByLabel("Link title", { exact: true }).fill("My projects");
+  await page.getByLabel("Destination URL", { exact: true }).fill("https://github.com/utpal");
+  await page.getByLabel("Link 1 icon", { exact: true }).selectOption("code");
+  await page.getByRole("button", { name: "Ocean", exact: true }).click();
+  await page.getByLabel("Button style", { exact: true }).selectOption("pill");
+  await page.getByRole("button", { name: "Add social icon", exact: true }).click();
+  await page.getByLabel("Social 1 platform", { exact: true }).selectOption("github");
+  await page.getByLabel("Social 1 address", { exact: true }).fill("https://github.com/utpal");
+  await page.getByRole("button", { name: "Add social icon", exact: true }).click();
+  await page.getByLabel("Social 2 platform", { exact: true }).selectOption("email");
+  await page.getByLabel("Social 2 address", { exact: true }).fill("hello@example.com");
+  await page.getByLabel("Publish this page").check();
+  await page.getByRole("button", { name: "Create page", exact: true }).click();
+  await expect(page).toHaveURL(/\/pages\/1\/edit$/);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Ocean", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Button style", { exact: true })).toHaveValue("pill");
+  await expect(page.getByLabel("Social 2 address", { exact: true })).toHaveValue("hello@example.com");
+  await page.goto("/b/utpal-design");
+  await expect(page.locator(".bio-profile")).toHaveAttribute("data-bio-preset", "ocean");
+  await expect(page.locator(".bio-link")).toHaveCSS("border-radius", "999px");
+  await expect(page.getByRole("link", { name: /GitHub/ })).toHaveAttribute("href", "https://github.com/utpal");
+  await expect(page.getByRole("link", { name: "Email", exact: true })).toHaveAttribute("href", "mailto:hello@example.com");
+  await expect(page.locator(".bio-link .lucide-code-xml, .bio-link .lucide-code-2")).toHaveCount(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "test-results/bio-ocean-mobile.png", fullPage: true });
+  await request.patch(api + "/api/v1/bio-pages/1", { data: { design: { preset: "midnight", buttonStyle: "outline", socials: [] } } });
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Email", exact: true })).toHaveCount(0);
+  await expect(page.locator(".bio-profile")).toHaveCSS("background-color", "rgb(18, 21, 43)");
+  await page.screenshot({ path: "test-results/bio-midnight-mobile.png", fullPage: true });
+});
+
+test("old pages use compatible defaults and social entries can be removed", async ({ page, request }) => {
+  await request.post(api + "/api/v1/bio-pages", { data: { slug: "older", displayName: "Older page", description: "", avatarUrl: null, theme: "light", isPublished: true, domainId: null, links: [] } });
+  await page.goto("/b/older");
+  await expect(page.locator(".bio-profile")).toHaveAttribute("data-bio-preset", "minimal");
+  await page.goto("/pages/1/edit");
+  await page.getByRole("button", { name: "Add social icon", exact: true }).click();
+  await page.getByRole("button", { name: "Remove social 1", exact: true }).click();
+  await expect(page.getByLabel("Social 1 address", { exact: true })).toHaveCount(0);
+});
