@@ -27,6 +27,7 @@ const server = http.createServer(async (req, res) => {
   if (path === '/api/v1/domain' && req.method === 'POST') { const domain = { id: 3, domain: body.domain, isVerified: false, dns: dns(body.domain), createdAt: new Date().toISOString() }; domains.push(domain); return ok(domain, 201); }
   if (/\/domain\/\d+\/verify$/.test(path)) { const domain = domains.find(d => d.id === Number(path.split('/')[4])); return ok({ ...domain, isVerified: false, checks: { ownership: true, routing: false } }); }
   if (/\/domain\/\d+$/.test(path) && req.method === 'DELETE') return send({ message: 'Remove this domain from its links and bio page before deleting it' }, 409);
+  if (path === '/api/v1/links/user-links') return ok({ links: { links: [{ id: 99, shortCode: 'branded', longUrl: 'https://example.com/target', title: 'Branded link', shortUrl: 'https://links.example.test/branded', domain: { domain: 'links.example.test' } }], pagination: { hasNextPage: false, nextCursor: null } } });
   if (path === '/api/v1/links' && req.method === 'POST') return ok({ longUrl: body.longUrl, shortLink: `${body.domainId ? 'https://links.example.test/' : 'https://short.example.test/'}hello` }, 201);
   if (path === '/api/v1/links/verify') return body.password === 'correct' ? ok('https://destination.example.test') : send({ message: 'Wrong password' }, 400);
   if (path.startsWith('/api/v1/public/bio-pages/')) {

@@ -24,6 +24,6 @@ export interface DnsRecord { type: string; name: string; value: string }
 export interface Domain {
   id: number; domain: string; isVerified: boolean; verifiedAt: string | null; createdAt: string;
   dns: { ownership: DnsRecord; routing: DnsRecord };
-  checks?: { ownership: boolean; routing: boolean };
+  checks?: { ownership: boolean; routing: boolean; routingMethod?: "cname" | "https" | null };
 }
 export interface Envelope<T> { success: boolean; data: T; message: string }

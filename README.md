@@ -81,3 +81,15 @@ follow light/dark/system appearance, except Midnight which stays dark.
 Deploy the backend bio-design migration/API update before this frontend.
 Social changes save explicitly with the rest of the page; profile URLs must be
 HTTP(S), and email icons accept a plain email address.
+
+## Custom-domain routing
+Domain help now supports proxies: keep the TXT ownership record and the routing
+CNAME. If the CNAME is hidden, the updated backend verifies an HTTPS routing proof.
+The proof path must reach the backend unchanged without caching, redirects, or
+bot/login challenges. A proxy's browser-facing certificate does not configure
+origin TLS; use the provider's secure origin settings. DNS-only domains still
+need matching origin certificates. DNS verification isn't a claim of TLS readiness.
+
+Link lists display the backend's canonical URL and a Custom domain label for
+assigned domains. Analytics prefers the backend canonical URL and retains a
+fallback for older backends.
