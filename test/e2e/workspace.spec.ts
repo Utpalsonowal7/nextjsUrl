@@ -25,7 +25,7 @@ test("create a draft, reorder links, publish, and unpublish", async ({ page, req
   expect(saved.isPublished).toBe(false);
   expect(saved.domainId).toBe(1);
   expect(saved.links.map((link: { title: string }) => link.title)).toEqual(["GitHub", "Portfolio"]);
-  expect(Object.keys(saved.links[0]).sort()).toEqual(["isActive", "title", "url"]);
+  expect(Object.keys(saved.links[0]).sort()).toEqual(["icon", "isActive", "title", "url"]);
   await page.getByLabel("Publish this page").check();
   await page.getByRole("button", { name: "Save changes", exact: true }).click();
   await expect(page.getByText("Saved. Your page is live.")).toBeVisible();

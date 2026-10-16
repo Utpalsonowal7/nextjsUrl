@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDown, ArrowLeft, ArrowUp, Check, ExternalLink, Plus, Save, Trash2 } from "lucide-react";
 import { bioApi, domainApi, errorMessage } from "@/lib/bio/api";
-import { draftPayload, safeWebUrl } from "@/lib/bio/utils";
-import type { BioDraft, BioTheme, Domain } from "@/lib/bio/types";
+import { defaultDesign, draftPayload, safeWebUrl } from "@/lib/bio/utils";
+import type { BioDraft, BioIcon, BioTheme, Domain } from "@/lib/bio/types";
 import Profile from "./Profile";
+import DesignControls, { iconLabels } from "./DesignControls";
+import { socialHref } from "./icons";
 import { button, input, secondary, panel, Notice, Loading, Status } from "../workspace/ui";
 const blank: BioDraft = { slug: "", displayName: "", description: "", avatarUrl: null, theme: "light", isPublished: false, domainId: null, links: [] };
 export default function Editor({ id }: { id?: string }) {
@@ -46,6 +48,8 @@ export default function Editor({ id }: { id?: string }) {
     event.preventDefault(); setError(""); setMessage("");
     const payload = draftPayload(draft);
     if ((payload.avatarUrl && !safeWebUrl(payload.avatarUrl)) || payload.links.some(link => !safeWebUrl(link.url))) { setError("Use HTTP or HTTPS URLs without embedded usernames or passwords."); return; }
+    if (payload.design?.socials.some(social => !socialHref(social.platform, social.url.trim()))) { setError("Use valid HTTP(S) social URLs or a valid email address."); return; }
+    payload.design = { ...(payload.design ?? defaultDesign), socials: (payload.design?.socials ?? []).map(social => ({ ...social, url: social.url.trim() })) };
     setSaving(true);
     try {
       const saved = id ? await bioApi.update(id, payload) : await bioApi.create(payload);
@@ -71,11 +75,12 @@ export default function Editor({ id }: { id?: string }) {
           <p className="mt-3 text-sm leading-6 text-muted">Reorder with the arrows. Switch a link off to hide it from your public page.</p>
           <div className="mt-5 space-y-4">{draft.links.map((link, index) => <div key={index} className="rounded-xl border border-navB bg-background p-4">
             <div className="mb-3 flex items-center justify-between"><span className="text-xs font-semibold text-muted">LINK {index + 1}</span><div className="flex gap-1"><button type="button" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`Move link ${index + 1} up`} className="rounded-lg p-2 hover:bg-cardBg disabled:opacity-25"><ArrowUp className="size-4" /></button><button type="button" disabled={index === draft.links.length - 1} onClick={() => move(index, 1)} aria-label={`Move link ${index + 1} down`} className="rounded-lg p-2 hover:bg-cardBg disabled:opacity-25"><ArrowDown className="size-4" /></button><button type="button" onClick={() => change({ links: draft.links.filter((_, i) => i !== index) })} aria-label={`Remove link ${index + 1}`} className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"><Trash2 className="size-4" /></button></div></div>
-            <label className="block text-xs font-medium">Link title<input className={input} required maxLength={100} placeholder="My portfolio" value={link.title} onChange={e => changeLink(index, { title: e.target.value })} /></label><label className="mt-3 block text-xs font-medium">Destination URL<input type="url" className={input} required maxLength={2048} placeholder="https://example.com" value={link.url} onChange={e => changeLink(index, { url: e.target.value })} /></label><label className="mt-4 flex items-center gap-2 text-xs text-muted"><input type="checkbox" className="size-4 accent-[#c41e3a]" checked={link.isActive} onChange={e => changeLink(index, { isActive: e.target.checked })} />Visible on public page</label>
+            <label className="block text-xs font-medium">Link title<input className={input} required maxLength={100} placeholder="My portfolio" value={link.title} onChange={e => changeLink(index, { title: e.target.value })} /></label><label className="mt-3 block text-xs font-medium">Link icon<select aria-label={`Link ${index + 1} icon`} className={input} value={link.icon ?? "link"} onChange={e => changeLink(index, { icon: e.target.value as BioIcon })}>{Object.entries(iconLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="mt-3 block text-xs font-medium">Destination URL<input type="url" className={input} required maxLength={2048} placeholder="https://example.com" value={link.url} onChange={e => changeLink(index, { url: e.target.value })} /></label><label className="mt-4 flex items-center gap-2 text-xs text-muted"><input type="checkbox" className="size-4 accent-[#c41e3a]" checked={link.isActive} onChange={e => changeLink(index, { isActive: e.target.checked })} />Visible on public page</label>
           </div>)}</div>
           <button type="button" disabled={draft.links.length >= 50} onClick={() => change({ links: [...draft.links, { title: "", url: "", isActive: true }] })} className={`${secondary} mt-5 w-full border-dashed`}><Plus className="size-4" />Add a link</button>
         </section>
         <section className={`${panel} p-5 sm:p-7`}><p className="text-xs font-semibold uppercase tracking-wider text-muted">03 / Make it yours</p><h2 className="mt-2 text-lg font-semibold">Appearance & publishing</h2><div role="group" aria-label="Page theme" className="mt-5 grid grid-cols-3 gap-3">{(["light", "dark", "system"] as BioTheme[]).map(theme => <button type="button" key={theme} aria-pressed={draft.theme === theme} onClick={() => change({ theme })} className={`rounded-xl border p-4 text-sm capitalize ${draft.theme === theme ? "border-short bg-short/5 ring-1 ring-short" : "border-navB"}`}><span className={`mb-3 block h-8 rounded-md border border-navB ${theme === "light" ? "bg-white" : theme === "dark" ? "bg-slate-900" : "bg-linear-to-r from-white from-50% to-slate-900 to-50%"}`} />{theme}</button>)}</div>
+          <DesignControls value={draft.design ?? defaultDesign} onChange={design => change({ design })} />
           <label className="mt-6 block text-sm font-medium">Custom domain<select aria-label="Custom domain" className={input} disabled={!!domainError} value={draft.domainId ?? ""} onChange={e => change({ domainId: e.target.value ? Number(e.target.value) : null })}><option value="">Use my LnkShrt page address</option>{domains.filter(d => d.isVerified || d.id === draft.domainId).map(d => <option key={d.id} value={d.id} disabled={!d.isVerified}>{d.domain}{!d.isVerified ? " (needs verification)" : ""}</option>)}</select></label>
           <p className="mt-2 text-xs leading-5 text-muted">{domainError || "Only your verified domains can be attached. HTTPS must also be enabled on your host."} <Link href="/domain" className="text-short underline">Manage domains</Link></p>
           <label className="mt-6 flex items-start gap-3 rounded-xl border border-navB bg-background p-4"><input type="checkbox" checked={draft.isPublished} onChange={e => change({ isPublished: e.target.checked })} className="mt-1 size-4 accent-[#c41e3a]" /><span><span className="block text-sm font-semibold">Publish this page</span><span className="mt-1 block text-xs leading-5 text-muted">Apply with Save changes. Unpublished pages are private.</span></span></label>

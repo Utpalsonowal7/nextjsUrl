@@ -37,8 +37,8 @@ const server = http.createServer(async (req, res) => {
     const tail = decodeURIComponent(path.slice('/api/v1/public/bio-pages/'.length));
     const page = tail.startsWith('domain/') ? pages.find(p => p.domainId === domains.find(d => d.domain === tail.slice(7) && d.isVerified)?.id && p.isPublished) : pages.find(p => p.slug === tail && p.isPublished);
     if (!page) return send({ message: 'Bio page not found' }, 404);
-    const { slug, displayName, description, avatarUrl, theme, links } = page;
-    return ok({ slug, displayName, description, avatarUrl, theme, links: links.filter(l => l.isActive).map(({ title, url }, position) => ({ title, url, position })) });
+    const { slug, displayName, description, avatarUrl, theme, design, links } = page;
+    return ok({ slug, displayName, description, avatarUrl, theme, design, links: links.filter(l => l.isActive).map(({ title, url, icon }, position) => ({ title, url, icon, position })) });
   }
   if (path === '/api/v1/bio-pages' && req.method === 'GET') return ok(pages);
   if (path === '/api/v1/bio-pages' && req.method === 'POST') {
