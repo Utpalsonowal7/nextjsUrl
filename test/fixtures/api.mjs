@@ -22,10 +22,6 @@ const server = http.createServer(async (req, res) => {
   if (path === '/__requests') return ok(requests);
   requests.push({ method: req.method, path, body, cookie: req.headers.cookie || '' });
   if (path === '/api/v1/auth/me') return ok({ user: { id: 7, name: 'Utpal Sonowal', email: 'utpal@example.test' } });
-  if (path === '/api/v1/auth/login') return body.password === 'WrongPass1!' ? send({ message: 'Wrong password' }, 401) : ok({ user: { id: 7, name: 'Utpal Sonowal', email: body.email }, accessToken: 'fixture-token', refreshToken: 'fixture-refresh' });
-  if (path === '/api/v1/auth/register') return body.email === 'taken@example.test' ? send({ message: 'User already exists' }, 409) : ok({ newUser: { email: body.email } });
-  if (path === '/api/v1/auth/verify-otp' || path === '/api/v1/auth/reset-password') return body.otp === 1234 ? ok(null) : send({ message: 'Invalid OTP' }, 400);
-  if (path === '/api/v1/auth/resend-otp' || path === '/api/v1/auth/forgot-password') return ok(null);
   if (path === '/api/v1/auth/logout') return ok(null);
   if (path === '/api/v1/domain' && req.method === 'GET') return ok({ domains: { domainFormat: domains } });
   if (path === '/api/v1/domain' && req.method === 'POST') { const domain = { id: 3, domain: body.domain, isVerified: false, dns: dns(body.domain), createdAt: new Date().toISOString() }; domains.push(domain); return ok(domain, 201); }

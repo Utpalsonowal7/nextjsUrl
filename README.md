@@ -26,20 +26,6 @@ Frontend variables:
 
 The older misspelled `NEXT_PUBLIC_BACkEND_URL` remains supported as a fallback. API URLs work with or without a trailing slash. Public variables must be set **before building**. Server-side API requests need network access from the Next.js host to the backend.
 
-## Email/password authentication
-
-- `/login` supports email/password login and Google sign-in.
-- `/register` creates an account, then verifies the email with the backend's
-  4-digit OTP. Verification does not log in automatically.
-- Login includes email verification/resend for existing unverified accounts,
-  and email-code password recovery.
-- Auth requests use credentialed cookies without retrying invalid credentials
-  through token refresh. After login, `/auth/me` must succeed before navigation.
-  Tokens returned by the backend are not stored in browser storage.
-- Configure backend email delivery (Brevo), CORS, frontend URL, and HTTPS cookies
-  for your deployed frontend/backend hostnames. Browser tests use fixtures;
-  they do not send verification emails or verify production delivery.
-
 ## Bio pages
 
 - `/pages`: list, copy/view, publish/unpublish and delete your pages.
