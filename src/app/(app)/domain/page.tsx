@@ -5,41 +5,41 @@ import { domainApi, errorMessage } from "@/lib/bio/api";
 import type { Domain, DnsRecord } from "@/lib/bio/types";
 import { button, input, secondary, panel, Loading, Notice, PageHeading } from "@/components/workspace/ui";
 export default function Domains() {
-  const [domains, setDomains] = useState<Domain[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [adding, setAdding] = useState(false);
-  const [hostname, setHostname] = useState("");
-  const [search, setSearch] = useState("");
-  const [open, setOpen] = useState<number | null>(null);
-  const [busy, setBusy] = useState<number | null>(null);
+     const [domains, setDomains] = useState<Domain[]>([]);
+     const [loading, setLoading] = useState(true);
+     const [error, setError] = useState("");
+     const [message, setMessage] = useState("");
+     const [adding, setAdding] = useState(false);
+     const [hostname, setHostname] = useState("");
+     const [search, setSearch] = useState("");
+     const [open, setOpen] = useState<number | null>(null);
+     const [busy, setBusy] = useState<number | null>(null);
   const load = useCallback(async () => { setLoading(true); setError(""); try { setDomains(await domainApi.list()); } catch (err) { setError(errorMessage(err)); } finally { setLoading(false); } }, []);
   useEffect(() => { void load(); }, [load]);
-  async function add(event: React.FormEvent) {
+     async function add(event: React.FormEvent) {
     event.preventDefault(); setAdding(true); setError(""); setMessage("");
     try { const domain = await domainApi.create(hostname.trim()); setDomains(items => [domain, ...items]); setHostname(""); setOpen(domain.id); setMessage("Domain added. Add both DNS records below, then verify."); }
     catch (err) { setError(errorMessage(err)); } finally { setAdding(false); }
-  }
-  async function verify(domain: Domain) {
+     }
+     async function verify(domain: Domain) {
     setBusy(domain.id); setError(""); setMessage("");
-    try {
-      const updated = await domainApi.verify(domain.id);
+          try {
+               const updated = await domainApi.verify(domain.id);
       setDomains(items => items.map(d => d.id === domain.id ? updated : d));
       if (updated.isVerified) setMessage(`${domain.domain} is verified. You can now use it for links and bio pages.`);
       else setError(`DNS records do not match yet. ${updated.checks?.ownership ? "Ownership TXT matched." : "Ownership TXT missing or incorrect."} ${updated.checks?.routing ? "Routing confirmed." : "Routing check failed: CNAME did not match and the HTTPS routing proof was not confirmed."} DNS changes can take time; check the records and retry.`);
     } catch (err) { setError(errorMessage(err, "DNS check unavailable. Please retry shortly.")); } finally { setBusy(null); }
-  }
-  async function remove(domain: Domain) {
+     }
+     async function remove(domain: Domain) {
     if (!window.confirm(`Remove ${domain.domain}? Attached links or bio pages must be removed or detached first.`)) return;
     setBusy(domain.id); setError(""); setMessage("");
     try { await domainApi.remove(domain.id); setDomains(items => items.filter(d => d.id !== domain.id)); setMessage("Domain removed."); }
     catch (err) { setError(errorMessage(err)); } finally { setBusy(null); }
-  }
+     }
   async function copy(value: string) { try { await navigator.clipboard.writeText(value); setMessage("DNS value copied."); } catch { setError("Could not copy. Select and copy the DNS value manually."); } }
-  function record(record: DnsRecord, title: string, matched?: boolean) {
+     function record(record: DnsRecord, title: string, matched?: boolean) {
     return <div className="rounded-xl border border-navB bg-background p-4"><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">{title}</h3><span className="rounded-md bg-cardBg px-2 py-1 font-mono text-xs">{record.type}</span></div><dl className="space-y-4">{[["Name", record.name], ["Value", record.value]].map(([label, value]) => <div key={label}><dt className="mb-1 text-xs text-muted">{label}</dt><dd className="flex items-start justify-between gap-3"><code className="min-w-0 select-all break-all text-xs leading-6">{value}</code><button onClick={() => copy(value)} aria-label={`Copy ${record.type} ${label.toLowerCase()}`} className="shrink-0 rounded-lg p-2 hover:bg-cardBg"><Copy className="size-3.5" /></button></dd></div>)}</dl>{matched !== undefined && <p className={`mt-3 text-xs ${matched ? "text-emerald-600 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>{matched ? "Record matched" : "Record not matched"}</p>}</div>;
-  }
+     }
   const visible = domains.filter(d => d.domain.includes(search.toLowerCase()));
   return <div className="mx-auto max-w-6xl px-4 sm:px-8"><PageHeading eyebrow="Put your name on it" title="Links that feel like you." description="Connect your own domain for recognizable short links and a bio page that belongs to your brand." />
     <form onSubmit={add} className={`${panel} mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-6`}><label className="min-w-0 flex-1 text-sm font-semibold">Connect a domain<input className={input} required maxLength={253} value={hostname} onChange={e => setHostname(e.target.value)} placeholder="links.yourbrand.com" /><span className="mt-2 block text-xs font-normal text-muted">Enter a subdomain without https:// or a path.</span></label><button className={`${button} sm:mb-6`} disabled={adding}><Plus className="size-4" />{adding ? "Adding…" : "Add domain"}</button></form>
