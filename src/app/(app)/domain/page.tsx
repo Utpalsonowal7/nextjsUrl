@@ -29,7 +29,7 @@ export default function Domains() {
      const [adding, setAdding] = useState(false);
      const [hostname, setHostname] = useState("");
      const [search, setSearch] = useState("");
-     const [copied, SetCopied] = useState<boolean>(false);
+     
      const [open, setOpen] = useState<number | null>(null);
      const [busy, setBusy] = useState<number | null>(null);
      const load = useCallback(async () => {
@@ -117,11 +117,7 @@ export default function Domains() {
           try {
                await navigator.clipboard.writeText(value);
                setMessage("DNS value copied.");
-               SetCopied(true);
-
-               setTimeout(() => {
-                    SetCopied(false);
-               }, 5000);
+             
           } catch {
                setError(
                     "Could not copy. Select and copy the DNS value manually.",
@@ -155,11 +151,10 @@ export default function Domains() {
                                              aria-label={`Copy ${record.type} ${label.toLowerCase()}`}
                                              className="shrink-0 rounded-lg p-2 hover:bg-cardBg"
                                         >
-                                             {copied ? (
-                                                  <CheckCircle2 className="size-3.5" />
-                                             ) : (
+                                             
+                                
                                                   <Copy className="size-3.5" />
-                                             )}
+                                          
                                         </button>
                                    </dd>
                               </div>
